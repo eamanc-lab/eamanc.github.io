@@ -77,7 +77,7 @@
 | `uno.config.js` | cssExtend prose code 粉红 `#c7254e` | prose code 改 sumi 墨；prose 基础色交由 sumi article 覆盖 | A9 |
 | `astro.config.ts` | Shiki 'dracula' | 关闭彩色高亮或改 sumi 单色（D8） | — |
 | `LayoutDefault.astro` | grid 双列+header/main/footer | body 首注入 `.paper-stage`(fibers+mist)；注入全局 SVG 滤镜 defs；`html` 加 `data-motion`；桥接暗色 | A6,A17,A26 |
-| `LayoutPost.astro` | `.reading-progress`+article.prose | 进度条改 sumi 笔触（`--ink`+`url(#ink-bleed)`）；article 容器加 sumi 排版钩子 | A8,A21 |
+| `LayoutPost.astro` | `.reading-progress`+article.prose | 进度条改 sumi 笔触（`--seal` 朱砂 +`url(#ink-bleed)`，见 Task 6 裁定）；article 容器加 sumi 排版钩子 | A8,A21 |
 | `SiteTitle.astro` | hgroup 签名式 | 站名用 `--font-cal` 书法体 + `.mini-seal` 朱印；副标题 ink-soft；char-reveal 入场 | A16.1,A16.2,A23 |
 | `SiteNavigation.astro` | nav ul + social i-mdi | 链接 ink-soft→ink hover + 笔触下划线（`.field::after` 同款）；social 图标 ink 色 | A18 |
 | `SiteFooter.astro` | footer p | ink-faint 小字 + `.mini-seal` 落款 | A23 |
@@ -208,8 +208,10 @@ git checkout -b feat/sumi-e-restyle
 
 **Files:** Modify `src/styles/global.css`（`.reading-progress`），`src/layouts/LayoutPost.astro` 按需
 
-**Step 1** `.reading-progress` 背景改 `var(--ink)` + `filter:url(#ink-bleed)`（参考 A14 `.progress .bar`），暗色 ink 自适应。
-**Step 2** 验证：构建 0；文章页滚动，进度条为墨色毛边笔触；暗色正常。
+> **【Task 3 reviewer I-1 裁定】** 进度条用 `var(--seal)` 朱砂**而非** `var(--ink)`。理由:博客原 reading-progress 是 signature accent(旧琥珀强调色),sumi 体系对应 accent = `--seal`(template.json 明确"朱砂印作克制点缀"是 sumi DNA);`--ink` 经 color-mix 混纸底≈正文色,作顶部进度信号对比不足。属 D7 择优(博客自有 signature 特性,非 sumi showcase 元素,不违 1:1)。Task 3 已落地 `.reading-progress{background:var(--seal)}`,Task 6 在此基础上加 filter,**不得改回 --ink**。
+
+**Step 1** 确认 `.reading-progress` 背景为 `var(--seal)`(Task 3 已落地),加 `filter:url(#ink-bleed)`（参考 A14 `.progress .bar` 的 `.seal` 变体），暗色 seal 自适应（sumi night `--seal` 已在 html.dark 桥接）。
+**Step 2** 验证：构建 0；文章页滚动，进度条为**朱砂**毛边笔触；暗色正常。
 **Step 3** Commit：`feat: 阅读进度条改为水墨笔触`
 
 ---
