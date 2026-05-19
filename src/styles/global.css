@@ -317,5 +317,302 @@ html.animation-prepared .transition-swup-footer {
 :root[data-motion="reduce"] * { animation-duration: calc(var(--ad, 0.5s) * 0.4) !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Task 5 — article.prose 正文排版 1:1 sumi 水墨
+   1:1 自 showcase #type 章 (SRC:3820-3917) + 其类样式 (SRC:2490-2591)
+   + .field::after 笔触渐展技法 (SRC:659-669)。
+   全部以 `article.prose …` 高特异性覆盖 UnoCSS presetTypography 默认;
+   D3 全特效:标题/引用/hr/链接边缘套 filter:url(#ink-bleed) 毛边。
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── ① 容器:窄栏 + 中文阅读节奏 ────────────────────────────────────────── */
+article.prose {
+  max-width: 65ch;            /* CLAUDE.md 黄金阅读宽度 + sumi 窄栏,勿拉宽 */
+  margin-inline: auto;
+  color: var(--fg);
+  font-family: var(--font-text);
+  font-size: 15px;            /* SRC Body: 15px */
+  line-height: 1.85;          /* 中文笔画密度 → 比 SRC Body 1.7 略增 */
+  letter-spacing: 0.01em;
+  text-wrap: pretty;
+}
+
+/* ─── ② 标题 h1–h4:思源宋体 display 字阶梯度 (SRC:3833-3845) ─────────────── */
+article.prose :is(h1, h2, h3, h4) {
+  font-family: var(--font-display);
+  color: var(--ink-strong);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+/* D3 全特效:标题边缘墨韵毛边 (用户明确决策,全站 1:1) */
+article.prose :is(h1, h2, h3, h4) {
+  filter: url(#ink-bleed);
+}
+article.prose h1 {                                  /* ≈ SRC Display 44/500 */
+  font-size: 2.6rem;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--sp-5);
+}
+article.prose h2 {                                  /* ≈ SRC Title 26/500 */
+  font-size: 1.72rem;
+  line-height: 1.25;
+  margin: var(--sp-7) 0 var(--sp-4);
+}
+article.prose h3 {                                  /* 介于 Title 与 Heading */
+  font-size: 1.32rem;
+  line-height: 1.3;
+  margin: var(--sp-6) 0 var(--sp-3);
+}
+article.prose h4 {                                  /* ≈ SRC Heading 18/500 */
+  font-size: 1.12rem;
+  line-height: 1.35;
+  margin: var(--sp-5) 0 var(--sp-2);
+}
+
+/* ─── ③ 段落 p:正文墨色,与容器同节奏 ──────────────────────────────────── */
+article.prose p {
+  color: var(--fg);
+  margin: 0 0 1.5em;
+  line-height: 1.85;
+}
+
+/* ─── ⑪ 斜体 em/i:勿落 Inter faux(m-2)──────────────────────────────────
+   font-latin = "Cormorant Garamond","Noto Serif SC",serif:
+   Cormorant 无 CJK 字形 → 中文自动回落 Noto Serif SC 真斜;
+   拉丁字符走 Cormorant Garamond italic(已载 ital)。一条声明同时满足中西。 */
+article.prose :is(em, i) {
+  font-family: var(--font-latin);
+  font-style: italic;
+  color: var(--ink-strong);
+}
+article.prose strong, article.prose b {
+  color: var(--ink-strong);
+  font-weight: 600;
+}
+
+/* ─── ⑧ 链接 a:笔触下划线 hover 渐展(借 .field::after 技法,不依赖该类) ── */
+article.prose :where(a):not(.not-prose):not(.not-underline-hover) {
+  color: var(--ink-strong);
+  text-decoration: none;
+  position: relative;
+  background: none;
+  transition: color .25s ease;
+}
+article.prose :where(a):not(.not-prose):not(.not-underline-hover)::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 1.5px;
+  background: var(--ink-hairline);                  /* 静止态:淡墨底线 (SRC .field::before) */
+}
+article.prose :where(a):not(.not-prose):not(.not-underline-hover)::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -2px;
+  height: 2px;
+  width: 0%;
+  background: var(--ink);
+  filter: url(#ink-bleed);                          /* 毛边墨线 (SRC .field::after) */
+  transition: width .45s cubic-bezier(.3, .7, .2, 1);
+}
+article.prose :where(a):not(.not-prose):not(.not-underline-hover):hover,
+article.prose :where(a):not(.not-prose):not(.not-underline-hover):focus-visible {
+  color: var(--seal);
+}
+article.prose :where(a):not(.not-prose):not(.not-underline-hover):hover::after,
+article.prose :where(a):not(.not-prose):not(.not-underline-hover):focus-visible::after {
+  width: 100%;
+}
+
+/* ─── ④ 引用 blockquote:左侧毛边笔触竖线 (SRC:2540-2565 .blockquote-cal) ── */
+article.prose blockquote {
+  position: relative;
+  margin: var(--sp-6) 0;
+  padding: 0 0 0 18px;
+  color: var(--ink-mid);
+  font-style: normal;
+  border: 0;                                        /* 抹掉 presetTypography 旧左边框 */
+  quotes: none;
+}
+article.prose blockquote::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 4px; bottom: 4px;
+  width: 3px;
+  background: var(--ink);
+  filter: url(#ink-bleed);                          /* 毛边墨竖线 */
+}
+article.prose blockquote p { color: var(--ink-mid); }
+article.prose blockquote p:last-child { margin-bottom: 0; }
+article.prose blockquote cite {
+  display: block;
+  margin-top: 10px;
+  font: 400 12px var(--font-mono);
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+  font-style: normal;
+}
+
+/* ─── ⑤ hr:居中克制的毛边笔触短线 ──────────────────────────────────────── */
+article.prose hr {
+  border: 0;
+  height: 2px;
+  width: 38%;
+  max-width: 160px;
+  margin: var(--sp-7) auto;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ink-soft) 18%,
+    var(--ink-soft) 82%,
+    transparent
+  );
+  filter: url(#ink-bleed);
+}
+
+/* ─── ⑥ ul/ol/li:书法体朱砂标记 (SRC:2567-2591 .list-cal) ───────────────── */
+article.prose :is(ul, ol) {
+  padding: 0;
+  margin: 0 0 1.5em;
+  list-style: none;
+  counter-reset: cal;
+}
+article.prose :is(ul, ol) li {
+  position: relative;
+  padding-left: 1.9em;
+  margin: 0.55em 0;
+  line-height: 1.75;
+  color: var(--fg);
+  counter-increment: cal;
+}
+article.prose ol > li::before {
+  content: counter(cal, cjk-ideographic);           /* 一二三… 书法数字 */
+  position: absolute;
+  left: 0;
+  top: 0.02em;
+  font-family: var(--font-cal);
+  font-size: 1.15em;
+  line-height: 1.4;
+  color: var(--seal);
+}
+article.prose ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0.32em;
+  top: 0.78em;
+  width: 6px;
+  height: 6px;
+  background: var(--ink);
+  border-radius: 50% 46% 52% 48%;                   /* 不规则墨点 */
+  filter: url(#ink-bleed);
+}
+article.prose li > :is(ul, ol) { margin: 0.4em 0 0.2em; }
+
+/* ─── ⑨ inline code:sumi 单色墨 (D8 — 比 Task 2 cssExtend 更高特异性) ───── */
+article.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  color: var(--ink-mid);
+  background: color-mix(in oklab, var(--paper-shade) 70%, transparent);
+  padding: 1px 6px;
+  border-radius: 3px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+article.prose :not(pre) > code::before,
+article.prose :not(pre) > code::after { content: none; }
+
+/* ─── ⑩ pre 代码块:仅基础 sumi 容器壳(语法主题 Shiki 留 Task 12) ──────── */
+article.prose pre {
+  background: var(--paper-shade);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--ink-hairline);
+  border-radius: 4px;
+  filter: url(#ink-bleed);                          /* 容器边缘墨韵 */
+  overflow-x: auto;
+  margin: var(--sp-5) 0;
+}
+article.prose pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+  filter: none;
+}
+
+/* ─── ⑦ 首字下沉 drop-cap:仅文章详情页首段首字 (SRC:2510-2524) ──────────── */
+/* 裁定:博客 signature 特性(原琥珀首字下沉),迁移到 sumi accent=--seal,
+   书法体 Ma Shan Zheng;D7 择优,非 SRC showcase 元素故不违 1:1。
+   首子选择器:article.prose 内首个 markdown <p>(PostMeta 的 <header> 在前但非 p)。 */
+.post-detail article.prose > p:first-of-type::first-letter {
+  font-family: var(--font-cal);
+  font-size: 4.5em;
+  float: left;
+  line-height: 0.85;
+  padding-right: 10px;
+  padding-top: 6px;
+  color: var(--seal);
+}
+
+/* ─── ⑫ 暗色:墨夜 sumi night token 自洽 + m-3 prose 边覆盖 ──────────────── */
+/* presetTheme dark 只覆盖 colors 不覆盖 CSS 变量(原版 #eee 即有此继承缺陷):
+   在此把 prose 边 / --prose-borders 覆盖为 sumi 夜 hairline,避免亮边对比反转。 */
+html.dark article.prose {
+  --prose-borders: var(--ink-hairline);
+  color: var(--fg);
+}
+html.dark article.prose :is(h1, h2, h3, h4) { color: var(--ink-strong); }
+html.dark article.prose p { color: var(--fg); }
+html.dark article.prose :is(em, i) { color: var(--ink-strong); }
+html.dark article.prose :is(strong, b) { color: var(--ink-strong); }
+html.dark article.prose blockquote,
+html.dark article.prose blockquote p { color: var(--ink-mid); }
+html.dark article.prose blockquote::before { background: var(--ink); }
+html.dark article.prose blockquote cite { color: var(--ink-soft); }
+html.dark article.prose hr {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ink-soft) 18%,
+    var(--ink-soft) 82%,
+    transparent
+  );
+}
+html.dark article.prose :is(ul, ol) li { color: var(--fg); }
+html.dark article.prose ol > li::before { color: var(--seal); }
+html.dark article.prose ul > li::before { background: var(--ink); }
+html.dark article.prose :not(pre) > code {
+  color: var(--ink-mid);
+  background: color-mix(in oklab, var(--paper-shade) 70%, transparent);
+}
+html.dark article.prose pre {
+  background: var(--paper-shade);
+  color: var(--ink);
+  border-color: var(--ink-hairline);
+}
+html.dark article.prose :where(a):not(.not-prose):not(.not-underline-hover) {
+  color: var(--ink-strong);
+}
+html.dark article.prose :where(a):not(.not-prose):not(.not-underline-hover)::before {
+  background: var(--ink-hairline);
+}
+html.dark article.prose :where(a):not(.not-prose):not(.not-underline-hover)::after {
+  background: var(--ink);
+}
+html.dark article.prose :where(a):not(.not-prose):not(.not-underline-hover):hover,
+html.dark article.prose :where(a):not(.not-prose):not(.not-underline-hover):focus-visible {
+  color: var(--seal);
+}
+.post-detail html.dark article.prose > p:first-of-type::first-letter,
+html.dark .post-detail article.prose > p:first-of-type::first-letter {
+  color: var(--seal);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    end Functional skeleton — 后续 Task 追加规则应插在此闭区之前
    ═══════════════════════════════════════════════════════════════════════════ */
