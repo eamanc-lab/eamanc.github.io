@@ -1,0 +1,34 @@
+/* ──────────────────────────────────────────────────────────────────────────
+ * sumi-e 字体接入
+ * ──────────────────────────────────────────────────────────────────────────
+ * 本文件负责「砚 / Sumi-e 水墨设计语言」的字体地基,后续所有视觉
+ * (标题 / 正文 / 书法落款 / 拉丁衬线 / 代码)均依赖这 6 个字族。
+ *
+ * 字族(与 sumi-e showcase 源逐字符一致,顺序亦同):
+ *   1. Noto Serif SC        — 中文衬线(标题主体)
+ *   2. Noto Sans SC         — 中文无衬线(正文 / UI)
+ *   3. Cormorant Garamond   — 拉丁衬线(含 italic,中英混排的西文)
+ *   4. Ma Shan Zheng        — 书法体(落款 / 钤印式装饰)
+ *   5. JetBrains Mono       — 等宽(代码)
+ *   6. Inter                — 拉丁无衬线(UI 西文)
+ *
+ * ── 参数不可改 ──
+ * 下方 @import 的 family / wght / ital / display 参数与 sumi-e showcase
+ * 源(showcase 第 12 行)完全一致,仅把官方域名替换为国内镜像。
+ * 改动任何一个权重 / italic / display 参数都会导致字形不再 1:1,禁止修改。
+ *
+ * ── 镜像策略 ──
+ * CSS @import 没有自动 fallback 链:写多个 @import 不会"主挂自动换备",
+ * 只会各自重复下载。因此这里只写「一个最优镜像」的 @import。
+ * 真正的多级兜底由 font-family 声明里的 system 字体承担
+ * (见 src/.config/user.ts 的 appearance.fonts:Songti SC / PingFang SC
+ *  等系统字体;镜像不可达时浏览器自动回落到系统字体,页面不会崩)。
+ *
+ * 主镜像:Google 官方中国 CDN(fonts.googleapis.cn)——Google 自营反代,
+ *         绝对 1:1、不依赖第三方善意维护,最稳。
+ * 备用镜像(主镜像失效时人工取消注释切换,二选一):
+ *   - 中科大 loli.net : https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Ma+Shan+Zheng&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap
+ *   - font.im       : https://fonts.font.im/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Ma+Shan+Zheng&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap
+ * ────────────────────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.cn/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Ma+Shan+Zheng&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap');

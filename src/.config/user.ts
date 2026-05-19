@@ -61,8 +61,8 @@ export const userConfig: Partial<UserConfig> = {
     },
     fonts: {
       header:
-        '"Noto Serif SC","Source Han Serif SC","Source Han Serif CN","HiraMinProN-W6",serif',
-      ui: '"Noto Sans SC","Source Han Sans SC","PingFang SC","Helvetica Neue","Roboto",sans-serif',
+        '"Noto Serif SC", "Cormorant Garamond", "Songti SC", "STSong", "Source Han Serif SC", serif',
+      ui: '"Noto Sans SC", "Inter", "PingFang SC", "Hiragino Sans GB", -apple-system, system-ui, sans-serif',
     },
   },
   comment: {},
