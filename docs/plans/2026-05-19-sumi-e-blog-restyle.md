@@ -173,6 +173,8 @@ git checkout -b feat/sumi-e-restyle
 - 删除全部旧自定义（亚麻 `html::before`、旧 dropcap、旧链接动画、旧 hr、旧滚动条等）——sumi 体系将重建
 - **【Task 1 reviewer 前向提醒 I-1】** 旧 `global.css:77` drop-cap 硬编码 `font-family: "Noto Serif SC","Source Han Serif SC",serif`（独立于 theme 体系的孤儿值）必须改为 sumi `--font-cal` 书法体朱砂首字下沉，勿遗漏
 - **【Task 1 reviewer 前向提醒 m-1】** 重写后 `@import './sumi-fonts.css';` 必须保持为文件**第一条规则**（其前只能有注释）——CSS 规范要求 @import 先于所有非注释规则，否则被浏览器静默忽略
+- **【Task 2 reviewer 前向提醒 m-2】** `uno.config.js` cssExtend 现有 3 个 hardcode hex（Task 2 已加 sumi token 来源注释作靶点）：`--prose-borders`=#c7c3c0(`--ink-hairline`)、code `color`=#4d4641(`--ink-mid`)、code `background-color`=#ebe3cd(`--paper-shade`)。Task 3 重写 global.css 时用更高特异性的 `article.prose` 规则以 sumi CSS 变量覆盖这些静态 hex（cssExtend 由 presetTypography 注入，无法直接用运行时 var，故走 global.css 覆盖路线）
+- **【Task 2 reviewer 前向提醒 m-3】** `--prose-borders` 在 dark 模式无覆盖（presetTheme dark 只覆盖 colors 不覆盖 CSS 变量，原版 `#eee` 即有此继承缺陷）。Task 3 暗色桥接时必须在 `html.dark` 块内覆盖 `--prose-borders`/prose 边框为 sumi 夜色 hairline，避免墨夜底配亮边对比反转
 **Step 3** 验证：`pnpm build` 0 error；`pnpm typecheck` 0 error。
 **Step 4** Commit：`feat: global.css 重写为 sumi-e 设计系统地基（token/纸纹/滤镜/暗色桥接）`
 
