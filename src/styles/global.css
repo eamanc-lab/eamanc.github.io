@@ -322,6 +322,22 @@ html.animation-prepared .transition-swup-footer {
    + .field::after 笔触渐展技法 (SRC:659-669)。
    全部以 `article.prose …` 高特异性覆盖 UnoCSS presetTypography 默认;
    D3 全特效:标题/引用/hr/链接边缘套 filter:url(#ink-bleed) 毛边。
+
+   ── 节索引(⚠ 编号 = Task 产出清单序,非物理书写顺序;CSS 重排有覆盖风险
+        故保留清单序编号 + 此导航;后续 Task 6-12 按编号在下方定位)──
+     ①  容器 article.prose                    （物理位置 1）
+     ②  标题 h1–h4                             （物理位置 2）
+     ③  段落 p                                 （物理位置 3）
+     ⑪  斜体 em/i                              （物理位置 4）
+     ⑪b strong / b（独立小节,Task 8 或处理色） （物理位置 5）
+     ⑧  链接 a（笔触下划线渐展）               （物理位置 6）
+     ④  引用 blockquote                        （物理位置 7）
+     ⑤  hr                                     （物理位置 8）
+     ⑥  ul/ol/li（书法体朱砂标记）             （物理位置 9）
+     ⑨  inline code                            （物理位置 10）
+     ⑩  pre 代码块（仅容器壳;Shiki 留 Task 12）（物理位置 11）
+     ⑦  drop-cap（.post-detail 首段首字朱砂）  （物理位置 12）
+     ⑫  暗色 html.dark 覆盖（含 m-3 prose 边） （物理位置 13）
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ─── ① 容器:窄栏 + 中文阅读节奏 ────────────────────────────────────────── */
@@ -343,10 +359,7 @@ article.prose :is(h1, h2, h3, h4) {
   font-weight: 500;
   letter-spacing: -0.01em;
   text-wrap: balance;
-}
-/* D3 全特效:标题边缘墨韵毛边 (用户明确决策,全站 1:1) */
-article.prose :is(h1, h2, h3, h4) {
-  filter: url(#ink-bleed);
+  filter: url(#ink-bleed);                          /* D3 全特效:标题边缘墨韵毛边(用户明确决策,全站 1:1) */
 }
 article.prose h1 {                                  /* ≈ SRC Display 44/500 */
   font-size: 2.6rem;
@@ -374,6 +387,8 @@ article.prose h4 {                                  /* ≈ SRC Heading 18/500 */
 article.prose p {
   color: var(--fg);
   margin: 0 0 1.5em;
+  /* override presetTypography `p,ul,ol,pre{line-height:1.75}`(其 dist 第 19-22 行
+     显式 reset p 行高,删此条 p 不会继承容器 1.85 而被强制回 1.75)→ 与容器同节奏 */
   line-height: 1.85;
 }
 
@@ -386,6 +401,12 @@ article.prose :is(em, i) {
   font-style: italic;
   color: var(--ink-strong);
 }
+
+/* ─── ⑪b 加粗 strong/b ──────────────────────────────────────────────────
+   决策:presetTypography DEFAULT() 无 strong/b 规则(其 dist 第 4-163 行
+   全无 strong/b 项)→ 浏览器 UA bold 生效,此处非覆盖而是 sumi 强化。
+   色用 --ink-strong(sumi 浓墨,正文强调惯例);Task 8 若调 strong 色在此定位。
+   独立小节(非并入 ⑪ 斜体):strong 与 em 语义/sumi 处理不同,分置便于检索。 */
 article.prose strong, article.prose b {
   color: var(--ink-strong);
   font-weight: 600;
@@ -405,6 +426,7 @@ article.prose :where(a):not(.not-prose):not(.not-underline-hover)::before {
   left: 0; right: 0; bottom: -2px;
   height: 1.5px;
   background: var(--ink-hairline);                  /* 静止态:淡墨底线 (SRC .field::before) */
+  pointer-events: none;                             /* 下划线伪元素不拦截点击 */
 }
 article.prose :where(a):not(.not-prose):not(.not-underline-hover)::after {
   content: "";
@@ -415,6 +437,7 @@ article.prose :where(a):not(.not-prose):not(.not-underline-hover)::after {
   background: var(--ink);
   filter: url(#ink-bleed);                          /* 毛边墨线 (SRC .field::after) */
   transition: width .45s cubic-bezier(.3, .7, .2, 1);
+  pointer-events: none;                             /* 下划线伪元素不拦截点击 */
 }
 article.prose :where(a):not(.not-prose):not(.not-underline-hover):hover,
 article.prose :where(a):not(.not-prose):not(.not-underline-hover):focus-visible {
@@ -471,7 +494,11 @@ article.prose hr {
   filter: url(#ink-bleed);
 }
 
-/* ─── ⑥ ul/ol/li:书法体朱砂标记 (SRC:2567-2591 .list-cal) ───────────────── */
+/* ─── ⑥ ul/ol/li:书法体朱砂标记 (SRC:2567-2591 .list-cal) ─────────────────
+   counter-reset:cal 置于 list 容器 = 1:1 自 SRC:2567-2591(其 .list-cal 第
+   2574 行原样把 counter-reset 放 list 容器,非 li)。CSS counter 为嵌套作用域
+   栈式:内层 ul/ol 的 counter-reset 创建该层独立 counter 实例,不破坏外层 ol
+   计数;已 Playwright 实测 ol>li>ul>li 与 ul>li>ol>li,外层编号不受内层影响。 */
 article.prose :is(ul, ol) {
   padding: 0;
   margin: 0 0 1.5em;
@@ -608,7 +635,9 @@ html.dark article.prose :where(a):not(.not-prose):not(.not-underline-hover):hove
 html.dark article.prose :where(a):not(.not-prose):not(.not-underline-hover):focus-visible {
   color: var(--seal);
 }
-.post-detail html.dark article.prose > p:first-of-type::first-letter,
+/* drop-cap 暗色作用域:dark 类挂在 <html>(.post-detail 是其后代),
+   故唯一有效写法是 html.dark 在前;原 `.post-detail html.dark …` 永不命中
+   (html 为根,不可能是 .post-detail 后代)已删。墨夜下首字仍朱砂 --seal。 */
 html.dark .post-detail article.prose > p:first-of-type::first-letter {
   color: var(--seal);
 }
