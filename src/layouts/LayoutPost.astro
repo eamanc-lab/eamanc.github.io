@@ -9,7 +9,30 @@ interface Props {
 const { post } = Astro.props
 ---
 
+<div class="reading-progress" id="reading-progress"></div>
+
 <article class="prose">
   <PostMeta post={post} />
   <slot />
 </article>
+
+<script>
+  function initProgress() {
+    const bar = document.getElementById('reading-progress')
+    if (!bar) return
+
+    function updateProgress() {
+      const scrollTop = window.scrollY
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
+      bar!.style.width = `${Math.min(progress, 100)}%`
+    }
+
+    window.addEventListener('scroll', updateProgress, { passive: true })
+    updateProgress()
+  }
+
+  // Support Astro page transitions
+  document.addEventListener('astro:page-load', initProgress)
+  initProgress()
+</script>

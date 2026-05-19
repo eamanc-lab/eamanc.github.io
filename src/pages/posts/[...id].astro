@@ -35,9 +35,11 @@ function getUrl(id: string) {
 <LayoutDefault>
   <SiteSeo slot="seo" title={entry.data.title} desc={entry.data.description} banner={entry.data.banner} />
 
-  <LayoutPost post={entry}>
-    <Content />
-  </LayoutPost>
+  <div class="post-detail">
+    <LayoutPost post={entry}>
+      <Content />
+    </LayoutPost>
+  </div>
 
   <Pagination
     showLeft={Boolean(prev)}

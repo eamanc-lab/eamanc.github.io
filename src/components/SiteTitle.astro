@@ -4,18 +4,22 @@ import { themeConfig } from '~/.config'
 const { title, subtitle } = themeConfig.site
 ---
 
+<!-- 方案 2 放大版：签名落款 + 大字 -->
 <hgroup
-  lg="write-vertical-right items-start b-l-2px b-l-primary text-left"
-  flex="~ col gap-2.5"
-  class="cursor-pointer text-center duration-800 ease-in-out"
+  lg="items-end text-right"
+  flex="~ col"
+  class="cursor-pointer text-center duration-500 ease-in-out"
 >
   <a
-    class="not-underline-hover duration-800 ease-in-out"
-    lg:p="x-2.5 b-12 hover:(t-3.75 b-8.75)"
-    hover:lg=" bg-primary color-background"
+    class="not-underline-hover group inline-flex flex-col items-center"
     href="/"
   >
-    <h3 class="text-5 font-extrabold font-header">{subtitle}</h3>
-    <h1 class="text-8 font-extrabold font-header">{title}</h1>
+    <h1 class="text-7 font-header font-bold tracking-widest leading-tight"
+      style="letter-spacing: 0.15em;"
+    >{title}</h1>
+    <div class="my-2" style="width: 28px; height: 1px; opacity: 0.25; background: var(--accent-color);"></div>
+    <h3 class="text-4 font-ui font-light tracking-widest"
+      style="letter-spacing: 0.25em; opacity: 0.4;"
+    >{subtitle}</h3>
   </a>
 </hgroup>

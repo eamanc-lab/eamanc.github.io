@@ -1,0 +1,51 @@
+---
+import LayoutDefault from '~/layouts/LayoutDefault.astro'
+import type { Post } from '~/types'
+import { formatDate, getPosts } from '~/utils'
+
+export async function getStaticPaths() {
+  const posts = await getPosts()
+  const tagMap = new Map<string, Post[]>()
+
+  for (const post of posts) {
+    for (const tag of post.data.tags ?? []) {
+      const list = tagMap.get(tag) ?? []
+      list.push(post)
+      tagMap.set(tag, list)
+    }
+  }
+
+  return Array.from(tagMap).map(([tag, posts]) => ({
+    params: { tag },
+    props: { posts, tag },
+  }))
+}
+
+const { posts, tag } = Astro.props
+
+function getListItems(posts: Post[]) {
+  return posts.map((post) => ({
+    title: post.data.title,
+    href: `/posts/${post.id}/`,
+    date: formatDate(post.data.pubDate),
+  }))
+}
+---
+
+<LayoutDefault>
+  <section>
+    <h2 class="post-title"># {tag}</h2>
+    <ul class="pl-6 py-3" flex="~ col gap-4">
+      {
+        getListItems(posts).map(({ title, href, date }) => (
+          <li>
+            <h3 class="post-title">
+              <a href={href}>{title}</a>
+            </h3>
+            <time>{date}</time>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</LayoutDefault>

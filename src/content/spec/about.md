@@ -1,6 +1,20 @@
 ---
 title: 关于
-pubDate: 2024-12-06
+pubDate: 2026-04-06
 ---
 
-此主题系 Hexo 主题 <a href="https://github.com/sumimakito/hexo-theme-typography">活版印字</a> 在 Astro 平台上的移植版本
+## 关于我
+
+Eaman，AI 应用探索工程师，业余跑者。写代码和跑步对我来说是一回事——过程看似枯燥，但停不下来。
+
+## 关于这个博客
+
+我们正处在一场大雾中。AI 每天都在改变规则，没人能看清全貌。
+
+这个博客是我在雾中的记录——看到了什么就写什么，尽量写得深一点、客观一点。不追热点，不贩卖焦虑，不假装自己什么都懂。
+
+如果一篇文章里没有至少一个你在别处看不到的视角，那它不该发出来。
+
+## 联系
+
+[GitHub](https://github.com/eamanc-lab) · [X](https://x.com/eamanc_)

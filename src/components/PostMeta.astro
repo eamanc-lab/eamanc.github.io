@@ -11,6 +11,7 @@ const { post } = Astro.props
 const { translate: t } = Astro.locals
 
 const categoryList = post.data.categories ?? []
+const tags = post.data.tags ?? []
 ---
 
 <header flex="~ col gap-2">
@@ -21,5 +22,12 @@ const categoryList = post.data.categories ?? []
     <span>{t(post.data.modDate ? 'updated_at' : 'posted_at')}</span>
     <time>{formatDate(post.data.modDate ?? post.data.pubDate)}</time>
     {categoryList.map((category) => <PostCategory category={category} />)}
+    {tags.length > 0 && (
+      <span class="post-tags-inline">
+        {tags.map((tag: string) => (
+          <a class="post-tag not-underline-hover" href={`/tags/${tag}`}>#{tag}</a>
+        ))}
+      </span>
+    )}
   </div>
 </header>

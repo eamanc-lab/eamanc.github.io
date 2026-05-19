@@ -51,52 +51,18 @@ const dark = themeConfig.appearance.theme === 'dark'
       }
     </script>
     <style>
-      /* 页面首次加载动画 */
-      html.animation-prepared .transition-swup-header,
-      html.animation-prepared .transition-swup-footer {
-        animation: fade-in-down 1s linear 1;
-        --at-apply: 'lg-animate-name-fade-in-left';
-      }
-
-      html.animation-prepared .transition-swup-main {
-        animation: fade-in-down 1s linear 1;
-      }
-
-      @keyframes fade-in-down {
-        0% {
-          transform: translateY(-1rem);
-          opacity: 0;
-        }
-        100% {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-
-      @keyframes fade-in-left {
-        0% {
-          opacity: 0;
-          transform: translateX(1rem);
-        }
-
-        100% {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      /* 页面过渡动画 */
+      /* 页面过渡动画 - 由 global.css 的 gentle-rise 接管入场 */
       html.is-animating .transition-swup-main {
         opacity: 0;
-        transform: translateY(-1rem);
+        transform: translateY(8px);
       }
       html.is-leaving .transition-swup-main {
         opacity: 0;
-        transform: translateY(1rem);
+        transform: translateY(-8px);
       }
       .transition-swup-main {
-        transition-duration: 0.5s;
-        transition-timing-function: linear;
+        transition-duration: 0.6s;
+        transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         transform: translateY(0);
         opacity: 1;
       }
