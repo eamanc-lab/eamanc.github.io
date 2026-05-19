@@ -14,6 +14,7 @@ const { colorsDark, colorsLight, fonts } = themeConfig.appearance
 
 const cssExtend = {
   ':root': {
+    /* = sumi --ink-hairline (oklch(82% .006 60)); Task 3 经 global.css 高特异性 article.prose 用 var(--ink-hairline) 覆盖 */
     '--prose-borders': '#c7c3c0',
   },
 
@@ -25,9 +26,9 @@ const cssExtend = {
     'white-space': 'normal',
     'word-wrap': 'break-word',
     'padding': '2px 4px',
-    'color': '#4d4641',
+    'color': '#4d4641', /* = sumi --ink-mid (oklch(40% .012 60)); Task 3 经 global.css 高特异性 article.prose 用 var(--ink-mid) 覆盖 */
     'font-size': '90%',
-    'background-color': '#ebe3cd',
+    'background-color': '#ebe3cd', /* = sumi --paper-shade (源 hex); Task 3 经 global.css 覆盖 */
     'border-radius': '4px',
   },
 

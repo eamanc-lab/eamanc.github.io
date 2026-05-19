@@ -52,12 +52,12 @@ export const userConfig: Partial<UserConfig> = {
     theme: 'system',
     locale: 'zh-cn',
     colorsLight: {
-      primary: '#2b231c',
-      background: '#faf7ee',
+      primary: '#2b231c', // sumi --ink: color-mix(oklab, oklch(20% .018 60) 92%, #faf7ee 8%)
+      background: '#faf7ee', // sumi --paper (源 hex)
     },
     colorsDark: {
-      primary: '#d5d0cb',
-      background: '#190f0a',
+      primary: '#d5d0cb', // sumi --ink night: color-mix(oklab, oklch(92% .008 70) 92%, oklch(18% .020 50) 8%)
+      background: '#190f0a', // sumi --paper night: oklch(18% .020 50)
     },
     fonts: {
       header:
