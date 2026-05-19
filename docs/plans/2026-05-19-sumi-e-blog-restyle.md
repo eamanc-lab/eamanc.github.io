@@ -171,6 +171,8 @@ git checkout -b feat/sumi-e-restyle
 - `h1-4`/`.cal`/`code,.mono`/`.ink-edge`/`.goo-stage`（A9）
 - reduce-motion 改 `@media (prefers-reduced-motion: reduce)`（A15）
 - 删除全部旧自定义（亚麻 `html::before`、旧 dropcap、旧链接动画、旧 hr、旧滚动条等）——sumi 体系将重建
+- **【Task 1 reviewer 前向提醒 I-1】** 旧 `global.css:77` drop-cap 硬编码 `font-family: "Noto Serif SC","Source Han Serif SC",serif`（独立于 theme 体系的孤儿值）必须改为 sumi `--font-cal` 书法体朱砂首字下沉，勿遗漏
+- **【Task 1 reviewer 前向提醒 m-1】** 重写后 `@import './sumi-fonts.css';` 必须保持为文件**第一条规则**（其前只能有注释）——CSS 规范要求 @import 先于所有非注释规则，否则被浏览器静默忽略
 **Step 3** 验证：`pnpm build` 0 error；`pnpm typecheck` 0 error。
 **Step 4** Commit：`feat: global.css 重写为 sumi-e 设计系统地基（token/纸纹/滤镜/暗色桥接）`
 
@@ -193,6 +195,7 @@ git checkout -b feat/sumi-e-restyle
 **Files:** Modify `src/styles/global.css`（追加 article 段），参考 `LayoutPost.astro`
 
 **Step 1** 读 `SRC:3820-3917`（A21 排版章 DOM+局部样式）+ A9 + A16.1。
+> **【Task 1 reviewer 前向提醒 m-2】** `ui`/Inter 字体链未加载 italic 变体。若正文 `<em>`/斜体用 UI 字体会触发浏览器合成斜体（faux italic，质量差）。本 Task 评估：正文斜体应走 display 衬线（Noto Serif SC 有真斜体）或 latin（Cormorant Garamond 已载 italic），勿落到 Inter faux italic。
 **Step 2** `global.css` 追加 `article.prose` sumi 排版：display 字体标题、行宽（沿用 65ch 不破节奏）、行高、引用块（左笔触竖线 `url(#ink-bleed)`）、`hr`（sumi 渐变/笔触短线）、`ul/ol`、首字下沉（`--font-cal` 朱砂色 drop-cap）、`code/pre`（D8 单色墨）、链接（`.field::after` 同款笔触下划线 hover 渐展）。D3：标题/引用/hr/链接边缘**全套** `url(#ink-bleed)`。
 **Step 3** 验证：构建 0；起站打开任一文章，与 `SRC` type 章并排比对：drop-cap/引用/hr/链接/代码 1:1；暗色一致。
 **Step 4** Commit：`feat: 文章正文 1:1 sumi 水墨排版（全特效边缘）`
