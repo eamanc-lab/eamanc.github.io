@@ -52,12 +52,12 @@ export const userConfig: Partial<UserConfig> = {
     theme: 'system',
     locale: 'zh-cn',
     colorsLight: {
-      primary: '#2c3e50',
-      background: '#fafaf8',
+      primary: '#2b231c',
+      background: '#faf7ee',
     },
     colorsDark: {
-      primary: '#e8e6e3',
-      background: '#1a1a2e',
+      primary: '#d5d0cb',
+      background: '#190f0a',
     },
     fonts: {
       header:

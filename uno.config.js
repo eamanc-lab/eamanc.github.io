@@ -14,7 +14,7 @@ const { colorsDark, colorsLight, fonts } = themeConfig.appearance
 
 const cssExtend = {
   ':root': {
-    '--prose-borders': '#eee',
+    '--prose-borders': '#c7c3c0',
   },
 
   'code::before,code::after': {
@@ -25,9 +25,9 @@ const cssExtend = {
     'white-space': 'normal',
     'word-wrap': 'break-word',
     'padding': '2px 4px',
-    'color': '#c7254e',
+    'color': '#4d4641',
     'font-size': '90%',
-    'background-color': '#f9f2f4',
+    'background-color': '#ebe3cd',
     'border-radius': '4px',
   },
 
