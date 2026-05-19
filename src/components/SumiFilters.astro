@@ -1,0 +1,34 @@
+---
+---
+
+<!-- ─── SVG filters (the soul of this template) ─────────────────────── -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Irregular bleed / 晕染: turbulence + displacement (cards, seals, dividers) -->
+    <filter id="ink-bleed" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.022" numOctaves="2" seed="7"></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" scale="14" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+    </filter>
+
+    <!-- Softer bleed for small interactive elements (buttons / chips / toasts) -->
+    <filter id="ink-bleed-btn" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.020 0.024" numOctaves="2" seed="9"></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" scale="5" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+    </filter>
+
+    <!-- Goo merge / 融墨: blur + alpha threshold -->
+    <filter id="ink-goo" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b"></feGaussianBlur>
+      <feColorMatrix class="threshold" in="b" values="1 0 0 0 0
+                             0 1 0 0 0
+                             0 0 1 0 0
+                             0 0 0 18 -8"></feColorMatrix>
+    </filter>
+
+    <!-- Sparkline ring gradient (used inside stats) -->
+    <linearGradient id="inkGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="currentColor" stop-opacity="0.1"></stop>
+      <stop offset="100%" stop-color="currentColor" stop-opacity="0.9"></stop>
+    </linearGradient>
+  </defs>
+</svg>
