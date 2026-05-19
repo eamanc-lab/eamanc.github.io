@@ -68,7 +68,11 @@
   --sp-8: calc(88px * var(--s-spacing));
 }
 
-/* ── Night ink mode (sumi `:root[data-mode="night"]` → `html.dark`) ── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Night ink mode — DARK-MODE BRIDGE (sumi `:root[data-mode="night"]` → `html.dark`)
+   后续 Task 在各自 section 内加 html.dark 覆写,不要堆进此块
+   —— 此块仅 :root 级 token 互换。
+   ═══════════════════════════════════════════════════════════════════════════ */
 html.dark {
   --paper:        oklch(18% 0.020 50);
   --paper-edge:   oklch(15% 0.020 50);
@@ -251,7 +255,8 @@ code, .mono { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink
   top: 0;
   left: 0;
   height: 2px;
-  background: var(--ink);
+  /* 朱砂强调色:博客 signature accent,对应 sumi --seal 点缀;Task 6 在此加 filter,勿改回 --ink */
+  background: var(--seal);
   z-index: 9999;
   transition: width 50ms ease-out;
 }
@@ -308,4 +313,9 @@ html.animation-prepared .transition-swup-footer {
   animation-iteration-count: 1 !important;
   transition-duration: 0.001ms !important;
 }
+/* --ad: 各组件在自身规则内设置的 per-element animation-duration;此处 0.5s 为全局 fallback */
 :root[data-motion="reduce"] * { animation-duration: calc(var(--ad, 0.5s) * 0.4) !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   end Functional skeleton — 后续 Task 追加规则应插在此闭区之前
+   ═══════════════════════════════════════════════════════════════════════════ */
