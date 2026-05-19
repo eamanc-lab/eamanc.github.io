@@ -10,13 +10,14 @@ import type {
 } from 'giscus'
 import type { LANGUAGES } from '../i18n.ts'
 
-// astro-seo 0.8.x 不再从包入口导出 `Link` / `Meta`(它们经 `@ts-ignore`
-// 的 `export * from "./SEO.astro"` 暴露,tsc 不可见)。这里改为从其公开
-// 导出的 `SEOProps` 中提取同款类型(`SEOProps['extend'].link/meta` 的元素),
-// 与原 `Partial<Link>` / `Partial<Meta>` 语义完全一致,且不引入 any/ts-ignore。
-type SEOExtend = NonNullable<SEOProps['extend']>
-type Link = NonNullable<SEOExtend['link']>[number]
-type Meta = NonNullable<SEOExtend['meta']>[number]
+// astro-seo 0.8.4(已验证版本)不再从包入口导出 `Link` / `Meta`(它们经
+// `@ts-ignore` 的 `export * from "./SEO.astro"` 暴露,tsc 不可见)。改为从其
+// 公开导出的 `SEOProps` 中提取:`extend.link/meta` 的元素在上游本就是
+// `Partial<Link>` / `Partial<Meta>`,`[number]` 取得即同款类型,不引入
+// any/ts-ignore。下面两个别名是仅供本文件 ConfigSEO 使用的内部工具类型,
+// 有意不导出(并非漏写 export,请勿擅自补上)。
+type Link = NonNullable<NonNullable<SEOProps['extend']>['link']>[number]
+type Meta = NonNullable<NonNullable<SEOProps['extend']>['meta']>[number]
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
