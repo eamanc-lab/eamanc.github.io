@@ -28,16 +28,14 @@ function getListFromMap(map: typeof categoryMap) {
 ---
 
 <LayoutDefault>
-  <section>
-    <h2 class="post-title">{t('Categories')}</h2>
-    <ul class="pl-6" flex="~ col gap-4">
+  <section class="categories-index">
+    <h2 class="categories-index__title">{t('Categories')}</h2>
+    <ul class="post-list">
       {
         list.map(({ title, href, size }) => (
-          <li>
-            <h3 class="post-title">
-              <a href={href}>{title}</a>
-            </h3>
-            <p>{size}</p>
+          <li class="post-list__item">
+            <a class="post-list__title" href={href}>{title}</a>
+            <span class="post-list__meta">{size}</span>
           </li>
         ))
       }
@@ -45,12 +43,14 @@ function getListFromMap(map: typeof categoryMap) {
   </section>
 
   {tagList.length > 0 && (
-    <section class="mt-12">
-      <h2 class="post-title">{t('Tags')}</h2>
-      <div class="tags-cloud">
+    <section class="categories-index categories-index--tags">
+      <h2 class="categories-index__title">{t('Tags')}</h2>
+      <div class="tag-cloud">
         {tagList.map(([tag, count]) => (
-          <a class="tag-cloud-item not-underline-hover" href={`/tags/${tag}`}>
-            #{tag} <span class="tag-count">{count}</span>
+          <a class="tag-cloud__item not-underline-hover" href={`/tags/${tag}`}>
+            <span class="tag-cloud__hash" aria-hidden="true">#</span>
+            <span class="tag-cloud__label">{tag}</span>
+            <span class="tag-cloud__count">{count}</span>
           </a>
         ))}
       </div>

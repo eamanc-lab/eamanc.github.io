@@ -1365,5 +1365,416 @@ html.dark .ink-card > .wash {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Task 10 — List / Cloud / About(分类/标签/归档/关于页 sumi 化)
+   覆盖范围:src/pages/{categories/index,categories/[...category],tags/[...tag],
+   archive,about}.astro 五页。1:1 沿用 SRC:3820-3917 标题字阶 + SRC:543-635
+   .btn.outline 缩小版 chip 技法 + Task 5 article.prose 链接渐展技法,但所有
+   选择器以 .post-list / .tag-cloud / .archive-index / .archive / .about 高
+   特异性命名,与 article.prose(Task 5)、.site-*(Task 7)、.post-meta /
+   .post-category / .post-tag / .pagination(Task 8)、.ink-card / .posts-list
+   (Task 9)、.brush-divider(Task 3) 选择器**完全互斥**。
+
+   ── 路径决策(Path A vs B) ──
+     选 Path A(轻量行式列表):每个 <li> 内为「标题 + 日期/计数」单行结构,
+     不复用 Task 9 .ink-card.layered(min-height 180px + 三层纸,密度过重不
+     适合 archive/categories/tags 索引页的标题列表);克制 sibling-fade 沿用
+     :has() 模式但作用域到 .post-list,与 Task 9 .posts-list 完全独立。
+
+   ── 命名/BEM 决策 ──
+     · .post-list / .post-list__item / .post-list__title / .post-list__date
+       / .post-list__meta:三页(archive/categories/tags 单分类/单标签)共用
+       同一行式列表类——三处结构同形,共类避免重复;__date 用于年-月-日,
+       __meta 用于「N 篇文章」计数(分类总览页),语义不同故命名分离。
+     · .tag-cloud / .tag-cloud__item / .tag-cloud__hash / .tag-cloud__label
+       / .tag-cloud__count:标签云独立 BEM,**不复用** a.post-tag(后者
+       是 PostMeta 内 inline-flex 容器的小 chip,语义/尺寸/作用域不同;
+       共类会让任何 PostMeta chip 调整意外波及标签云)。技法 1:1 镜像
+       Task 8 a.post-tag 的 SRC:582-589 .btn.outline 缩小版 chip(透明底
+       + 1.5px ink-soft 描边经 url(#ink-bleed-btn) 软边),但选择器独立。
+     · .archive / .archive-index / .archive-index__title / .archive-index__
+       prefix:三页(archive 按年、categories/[...category] 按分类名、
+       tags/[...tag] 按 #tag)的 section 容器共用 .archive-index BEM;
+       archive 顶层多年容器额外用 .archive 命名以备未来按年悬停或目录跳。
+     · .categories-index / .categories-index--tags:分类总览页两 section
+       (分类列表 + 标签云)共类,--tags 修饰符仅为加 margin-top 与一处
+       hover 行为隔离(分类列表用 sibling-fade,标签云无 sibling-fade)。
+     · .about / .about__header / .about__title / .about__meta /
+       .about__meta-label / .about__meta-date:关于页 header **独立命名**,
+       不复用 .post-meta__title——理由:关于页 <h1> 在 article.prose
+       之外(LayoutDefault 直渲),用 .post-meta__title 需在父加
+       <header class="post-meta"> 包裹但语义不符(about 非"post");
+       且 .post-meta .post-meta__title 是双类策略覆盖 article.prose h1
+       的特殊用例,about 无此覆盖需求。独立 BEM 保命名空间清晰。
+     · `# {name}` 前缀(分类/标签页) → .archive-index__prefix(mono ink-faint
+       小字,与标题主体形成层级差),aria-hidden="true" 屏蔽给屏幕阅读器
+       (语义无意义,纯视觉记号);archive 年份页不用前缀(年份本身已是
+       自解释标题)。
+
+   ── 标签云 chip 技法溯源(双向同步护栏 M-3) ──
+     .tag-cloud__item 与 .tag-cloud__item::before 1:1 镜像 Task 8 a.post-tag /
+     a.post-tag::before(SRC:582-589 .btn.outline 缩小版),11 项属性应保持
+     byte-equality:position/display/padding/font/color/background/border/
+     border-radius/text-decoration/letter-spacing/cursor/user-select/
+     -webkit-user-select/isolation/transition/overflow + ::before 的
+     content/position/inset/z-index/background/box-shadow/filter/
+     border-radius/transition。改一侧需双向核对另一侧——独立 BEM 是
+     语义分层,不是技法分歧。
+
+   ── hover 非焦点淡化(克制不破节奏) ──
+     `.post-list:has(.post-list__item:hover) .post-list__item:not(:hover)`
+     opacity 0.6,与 Task 9 .posts-list :has 模式同曲线(cubic-bezier
+     0.23, 1, 0.32, 1)、同时长(.35s)、同 opacity 值,保证站内 list
+     交互节奏统一;选择器作用域独立,互不命中。标签云 .tag-cloud 不加
+     sibling-fade(单个云内 chip 过多,fade 会让整体晃动)。
+
+   ── 节索引 ──
+     ⑩.0  内省:Path A 选择、独立 BEM 命名、与 Task 8/9 共享技法的护栏说明
+     ⑩.1  .post-list / __item / __title / __date / __meta  行式列表
+     ⑩.2  .tag-cloud / __item / __hash / __label / __count  seal/ink chip
+     ⑩.3  .archive / .archive-index / __title / __prefix  页面级容器/标题
+     ⑩.4  .categories-index / --tags                       分类总览页变体
+     ⑩.5  .about / __header / __title / __meta             关于页 header
+     ⑩.6  .post-list :has hover 非焦点淡化                 sibling-aware
+     ⑩.7  html.dark                                        墨夜覆盖
+
+   ── 边界纪律 ──
+     · article.prose 自动继承 Task 5 排版,about <Content/> 内 markdown
+       渲染走 Task 5 路径,本 Task 不改 Task 5 段。
+     · 关于页 <h1 class="about__title"> 在 article.prose 之外,故 Task 5
+       article.prose h1 (0,1,1) 不命中本类 (0,1,0);但页面其他 UnoCSS
+       presetTypography 默认可能仍影响 h1——本 Task 用 .about__title
+       (单类 0,1,0)显式 reset 字体/字号/字色覆盖。
+     · 不动 Task 3 段、Task 5 article.prose 段、Task 7 .site-* 段、
+       Task 8 .post-meta/.post-category/.post-tag/.pagination 段、
+       Task 9 .ink-card / .posts-list 段(byte-untouched 纪律)。
+
+   ── Task 11 接入预告 ──
+     .post-list__title / .about__title 可作为 Task 11 char-reveal 钩子
+     (与 .post-meta__title 平级);本 Task 仅静态 sumi 化,不预拆 span。
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── ⑩.1 .post-list 行式列表(archive/categories/[...category]/tags/[...tag] 共用) ─
+   结构:<ul class="post-list"> > <li class="post-list__item">
+            <a class="post-list__title">…</a>
+            <time class="post-list__date">…</time> | <span class="post-list__meta">…</span>
+   横排单行(窄屏自动 wrap);链接渐展下划线技法借 article.prose ⑧ 同源,
+   但作用域独立(此处不在 article.prose 内,需自渲伪元素)。 */
+.post-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.post-list__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 18px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ink-hairline);
+  transition: opacity .35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.post-list__item:last-child {
+  border-bottom: 0;
+}
+
+.post-list__title {
+  position: relative;
+  flex: 1 1 60%;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: var(--ink-strong);
+  text-decoration: none;
+  background: none;
+  letter-spacing: -0.005em;
+  transition: color .25s ease;
+}
+.post-list__title::before {
+  /* 静止态淡墨底线(沿用 Task 5 article.prose ⑧ 链接 ::before hairline 技法) */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 1px;
+  background: var(--ink-hairline);
+  pointer-events: none;
+  opacity: 0;                                       /* 默认隐藏:行已有 border-bottom 分隔,避免与底线重叠 */
+  transition: opacity .25s ease;
+}
+.post-list__title::after {
+  /* 笔触渐展毛边墨线(沿用 Task 5 article.prose ⑧ 同源,filter 复用 ink-bleed) */
+  content: "";
+  position: absolute;
+  left: 0; bottom: -2px;
+  height: 2px;
+  width: 0%;
+  background: var(--ink);
+  filter: url(#ink-bleed);
+  transition: width .45s cubic-bezier(.3, .7, .2, 1);
+  pointer-events: none;
+}
+.post-list__title:hover,
+.post-list__title:focus-visible {
+  color: var(--seal);                                /* hover 朱砂(与 article.prose a:hover 同源) */
+}
+.post-list__title:hover::after,
+.post-list__title:focus-visible::after {
+  width: 100%;
+}
+
+.post-list__date {
+  /* JetBrains Mono 等宽体,sumi 元信息惯例(与 .post-meta__date 同源) */
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+.post-list__meta {
+  /* 「N 篇文章」计数(分类总览),与 __date 同视觉层级 */
+  font-family: var(--font-text);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+/* ─── ⑩.2 .tag-cloud 标签云(seal-outline chip,1:1 镜像 Task 8 a.post-tag 技法) ─
+   技法源:SRC:582-589 .btn.outline 缩小版(透明底 + 1.5px ink-soft 描边 +
+   url(#ink-bleed-btn) 软边)。**独立 BEM**(.tag-cloud__item)与 a.post-tag
+   选择器完全互斥——见 ⑩.0 banner 双向同步护栏。
+   .tag-cloud__hash 用 mono ink-faint(语义记号),.tag-cloud__count 同源。
+   chip 内三 span 横排居中对齐,整体 inline-flex wrap 形成"云"布局。 */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+.tag-cloud__item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  font: 400 0.82rem/1.5 var(--font-text);
+  color: var(--ink-mid);
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  isolation: isolate;
+  transition: transform .25s cubic-bezier(.3,.9,.3,1), color .25s;
+  overflow: visible;
+}
+.tag-cloud__item::before {
+  /* 1:1 镜像 SRC:582-589 .btn.outline::before(透明底 + 1.5px ink-soft 描边
+     + url(#ink-bleed-btn) 软边)。与 a.post-tag::before 技法同源,见 ⑩.0
+     双向同步护栏。 */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ink-soft);
+  filter: url(#ink-bleed-btn);
+  border-radius: inherit;
+  transition: background .25s, box-shadow .25s;
+}
+.tag-cloud__item:hover,
+.tag-cloud__item:focus-visible {
+  color: var(--ink-strong);
+  transform: translateY(-1px);
+}
+.tag-cloud__item:hover::before,
+.tag-cloud__item:focus-visible::before {
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+.tag-cloud__item:active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: .12s;
+}
+.tag-cloud__hash {
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  letter-spacing: 0;
+}
+.tag-cloud__label {
+  /* 标签名主体,与 .tag-cloud__item 字号一致(visualy continuous) */
+  color: inherit;
+}
+.tag-cloud__count {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.06em;
+  /* 计数小数字,弱化于标签名 */
+}
+
+/* ─── ⑩.3 .archive / .archive-index 页面级容器与标题 ───────────────────────── */
+.archive {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-7);
+}
+.archive-index {
+  /* 单 section 容器:archive 按年、categories/[...category]、tags/[...tag] 共用 */
+  margin: 0;
+}
+.archive-index + .archive-index {
+  margin-top: var(--sp-6);                            /* archive 多年场景兜底(虽 .archive 父已 gap,稳健兜底) */
+}
+.archive-index__title {
+  /* sumi 显示字体(与 article.prose h2 / .site-title 字阶呼应) */
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink-strong);
+  font-size: 1.72rem;                                 /* ≈ article.prose h2 1.72rem,统一 sumi Title 字阶 */
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--sp-4);
+  text-wrap: balance;
+  filter: url(#ink-bleed);                            /* 标题边缘墨韵毛边(与 article.prose 标题同源) */
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+}
+.archive-index__title--year {
+  /* 年份场景:无 # 前缀,字稍重一些(年份是自解释 token,主体即标题) */
+  letter-spacing: 0.02em;
+}
+.archive-index__prefix {
+  /* # 记号(分类/标签页):mono ink-faint 小字,与标题主体形成层级差;
+     aria-hidden 屏蔽给屏幕阅读器(语义无意义,纯视觉记号)。 */
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+  font-size: 0.6em;                                   /* 相对标题字号缩小,克制不抢主体 */
+  font-weight: 400;
+  letter-spacing: 0;
+  align-self: center;
+}
+
+/* ─── ⑩.4 .categories-index 分类总览页(分类列表 + 标签云双 section 变体) ──── */
+.categories-index {
+  margin: 0;
+}
+.categories-index__title {
+  /* 与 .archive-index__title 字阶一致,但语义上是"页内大段标题"
+     (Categories / Tags),用 uno shortcut 已 reset 的 .post-title 类不再
+     适用——本类完整复制 .archive-index__title body,保持 sumi Title 字阶。 */
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink-strong);
+  font-size: 1.72rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--sp-4);
+  text-wrap: balance;
+  filter: url(#ink-bleed);
+}
+.categories-index--tags {
+  margin-top: var(--sp-7);                            /* 分类列表 + 标签云之间的段落呼吸感 */
+}
+
+/* ─── ⑩.5 .about 关于页 header(article.prose 外的独立标题块) ─────────────── */
+/* 作用域:about.astro <header class="about__header"> 在 LayoutDefault main 内
+   <article class="prose"> 之外。.about__title 是单类(0,1,0),不被 Task 5
+   article.prose h1 (0,1,1) 命中——本节用 .about__title 显式 reset UnoCSS
+   presetTypography 全局 h1 默认,确保 sumi 字阶不漏覆盖。 */
+.about__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0 0 var(--sp-6);
+}
+.about__title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink-strong);
+  font-size: 2.1rem;                                  /* 与 .post-meta__title 同字阶(关于页是页面级标题,等同文章标题) */
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-wrap: balance;
+  filter: url(#ink-bleed);
+}
+.about__title a {
+  color: inherit;
+  text-decoration: none;
+  background: none;
+}
+.about__title a:hover,
+.about__title a:focus-visible {
+  color: var(--ink);
+}
+.about__meta {
+  font-family: var(--font-text);
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.about__meta-label {
+  color: var(--ink-soft);
+}
+.about__meta-date {
+  /* JetBrains Mono 等宽体,与 .post-meta__date / .post-list__date 同源 */
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+}
+
+/* ─── ⑩.6 .post-list :has hover 非焦点淡化(sibling-aware,与 Task 9 同曲线) ───
+   作用域独立于 Task 9 .posts-list:has(.ink-card:hover) ,选择器完全互斥
+   (.post-list 是行式列表,.posts-list 是卡片列表)。opacity / transition 与
+   Task 9 ⑨.3 1:1 一致,保证站内 list 交互节奏统一。 */
+.post-list:has(.post-list__item:hover) .post-list__item:not(:hover) {
+  opacity: 0.6;
+}
+
+/* ─── ⑩.7 html.dark 墨夜覆盖 ──────────────────────────────────────────────
+   token 已在 :root html.dark 互换;此处仅显式收回少数 inherit 易丢失的覆写,
+   保持 Task 5 ⑫ / Task 7 ⑦.4 / Task 8 ⑧.4 / Task 9 ⑨.4 同款风格(集中段尾)。 */
+html.dark .post-list__item { border-bottom-color: var(--ink-hairline); }
+html.dark .post-list__title { color: var(--ink-strong); }
+html.dark .post-list__title:hover,
+html.dark .post-list__title:focus-visible { color: var(--seal); }
+html.dark .post-list__date,
+html.dark .post-list__meta { color: var(--ink-soft); }
+
+html.dark .tag-cloud__item { color: var(--ink-mid); }
+html.dark .tag-cloud__item::before { box-shadow: inset 0 0 0 1.5px var(--ink-soft); }
+html.dark .tag-cloud__item:hover,
+html.dark .tag-cloud__item:focus-visible { color: var(--ink-strong); }
+html.dark .tag-cloud__item:hover::before,
+html.dark .tag-cloud__item:focus-visible::before {
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+html.dark .tag-cloud__hash,
+html.dark .tag-cloud__count { color: var(--ink-faint); }
+
+html.dark .archive-index__title,
+html.dark .categories-index__title,
+html.dark .about__title { color: var(--ink-strong); }
+html.dark .archive-index__prefix { color: var(--ink-faint); }
+html.dark .about__meta,
+html.dark .about__meta-label,
+html.dark .about__meta-date { color: var(--ink-soft); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
    end Functional skeleton — 后续 Task 追加规则应插在此闭区之前
    ═══════════════════════════════════════════════════════════════════════════ */

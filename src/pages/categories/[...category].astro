@@ -28,16 +28,16 @@ function getListItems(posts: Post[]) {
 ---
 
 <LayoutDefault>
-  <section>
-    <h2 class="post-title"># {name}</h2>
-    <ul class="pl-6 py-3" flex="~ col gap-4">
+  <section class="archive-index">
+    <h2 class="archive-index__title">
+      <span class="archive-index__prefix" aria-hidden="true">#</span>{name}
+    </h2>
+    <ul class="post-list">
       {
         getListItems(posts).map(({ title, href, date }) => (
-          <li>
-            <h3 class="post-title">
-              <a href={href}>{title}</a>
-            </h3>
-            <time>{date}</time>
+          <li class="post-list__item">
+            <a class="post-list__title" href={href}>{title}</a>
+            <time class="post-list__date">{date}</time>
           </li>
         ))
       }
