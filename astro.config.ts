@@ -11,9 +11,14 @@ import { themeConfig } from './src/.config'
 
 // https://astro.build/config
 export default defineConfig({
-  site: themeConfig.site.website,
+  // GitHub Pages project Pages 部署:owner `eamanc-lab` + repo `eamanc.github.io`
+  // → 实际部署 URL 是 `https://eamanc-lab.github.io/eamanc.github.io/`。
+  // Astro 约定 site=host-only,base=subpath;两者拼接后与 user.ts website 一致。
+  // 若未来改为 owner=`eamanc`(根 Pages)或重命名仓库为 `eamanc-lab.github.io`,
+  // 须同步改这两行 + user.ts website 字段。
+  site: 'https://eamanc-lab.github.io',
   prefetch: true,
-  base: '/',
+  base: '/eamanc.github.io/',
   vite: {
     plugins: [
       // eslint-disable-next-line ts/ban-ts-comment

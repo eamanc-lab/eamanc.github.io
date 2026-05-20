@@ -6,7 +6,7 @@ export const userConfig: Partial<UserConfig> = {
     subtitle: '保持呼吸',
     author: 'Eaman',
     description: '用普通人能懂的语言，解析前沿 AI 技术与趋势',
-    website: 'https://eamanc.github.io/',
+    website: 'https://eamanc-lab.github.io/eamanc.github.io/',
     pageSize: 5,
     socialLinks: [
       {
