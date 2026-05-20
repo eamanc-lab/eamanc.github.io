@@ -2,8 +2,8 @@
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
 import { themeConfig } from '~/.config'
 import Pagination from '~/components/Pagination.astro'
+import PostMeta from '~/components/PostMeta.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import LayoutPost from '~/layouts/LayoutPost.astro'
 import { getPostDescription, getPosts } from '~/utils'
 
 const { translate: t } = Astro.locals
@@ -23,13 +23,28 @@ type Props = InferGetStaticPropsType<typeof getStaticPaths>
 const { page } = Astro.props
 ---
 
+{/*
+  Task 9 — 列表/详情职责分离(Path B):
+    · 首页/分页列表绕过 LayoutPost(LayoutPost 含 reading-progress + article.prose,
+      为文章详情页设计;列表场景复用会引发 N 个重复 id="reading-progress"、
+      N 个 scroll listener、article.prose 行宽 65ch 与卡片宽度冲突等语义瑕疵)。
+    · 直接在此渲染 <article class="ink-card layered">…</article>,文章详情页
+      (src/pages/posts/[...id].astro)仍走 LayoutPost——LayoutPost.astro 本身
+      未被改动(Task 9 边界要求)。
+    · .ink-card .wash 是 SRC:514-541 鼠标墨迹钩子;Task 11 swup `page:view`
+      hook 接 querySelectorAll('.ink-card') 设 --mx/--my 后才视觉生效,本 Task
+      仅准备 DOM 与 CSS 钩子,不写 JS。
+*/}
+
 <LayoutDefault>
-  <section contain-layout flex="~ col gap-7.5">
+  <section class="posts-list" contain-layout flex="~ col gap-7.5">
     {
       page.data.map((post) => (
-        <LayoutPost post={post}>
+        <article class="ink-card layered">
+          <div class="wash" aria-hidden="true"></div>
+          <PostMeta post={post} />
           <p class="line-clamp-4">{getPostDescription(post)}</p>
-        </LayoutPost>
+        </article>
       ))
     }
   </section>
