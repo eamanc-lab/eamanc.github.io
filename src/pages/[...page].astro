@@ -31,9 +31,10 @@ const { page } = Astro.props
     · 直接在此渲染 <article class="ink-card layered">…</article>,文章详情页
       (src/pages/posts/[...id].astro)仍走 LayoutPost——LayoutPost.astro 本身
       未被改动(Task 9 边界要求)。
-    · .ink-card .wash 是 SRC:514-541 鼠标墨迹钩子;Task 11 swup `page:view`
-      hook 接 querySelectorAll('.ink-card') 设 --mx/--my 后才视觉生效,本 Task
-      仅准备 DOM 与 CSS 钩子,不写 JS。
+    · .ink-card .wash 是 SRC:514-541 鼠标墨迹钩子。Task 11 接入前 hover 时
+      wash opacity 已变 1 但渐变中心固定于卡片中心(50%/50%,沿用 :root 初值);
+      Task 11 swup `page:view` hook 接 querySelectorAll('.ink-card') 设
+      --mx/--my 后墨迹随鼠标流动。本 Task 仅准备 DOM 与 CSS 钩子,不写 JS。
 */}
 
 <LayoutDefault>

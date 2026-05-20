@@ -1213,8 +1213,10 @@ html.dark .pagination__link:focus-visible .pagination__chevron { color: var(--in
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Task 9 — Ink card(首页文章列表卡片 sumi 化)
-   1:1 自 showcase .ink-card 全套(SRC:1169-1248,含 .ink-card.layered ::before/
-   ::after 三层纸 + h3/p/.head/.foot 子元素)+ .ink-card > .wash 鼠标墨迹钩子
+   1:1 自 showcase .ink-card 容器 + .layered 三层纸(SRC:1169-1211,即
+   .ink-card 基块 SRC:1169-1183 与 .ink-card.layered ::after/::before 双伪
+   SRC:1192-1211 合段;h3/p/.head/.foot 子元素选择器 SRC:1212-1248 因列表卡
+   采用 <PostMeta> 结构不适用,已略)+ .ink-card > .wash 鼠标墨迹钩子
    (SRC:514-541,与 .sheet 共用)+ :root[data-mode="night"] .ink-card 变体
    (SRC:1184-1190)桥接到 html.dark。本段所有选择器以 .ink-card / .posts-list
    高特异性命名,与 article.prose(Task 5)、.site-*(Task 7)、.post-meta /
@@ -1234,7 +1236,7 @@ html.dark .pagination__link:focus-visible .pagination__chevron { color: var(--in
        BEM 子类——SRC 即以 `.ink-card h3` `.ink-card .head` 子选择器编排,
        盲增 BEM 反破 1:1 保真;且列表卡内容物已是 <PostMeta>(自带
        .post-meta__title 等 BEM)+ <p>,无再分层必要。
-     · .layered 修饰符(SRC:1192-1211)开 ::before/::after 三层纸效果,
+     · .layered 修饰符(SRC:1192-1211)开 ::after/::before 三层纸效果,
        与「毛边+层叠纸」spec 对齐——Task 9 默认所有列表卡用 .layered。
      · .wash 是 SRC 原子(.sheet 与 .ink-card 共用),不 BEM 化。
 
@@ -1247,7 +1249,7 @@ html.dark .pagination__link:focus-visible .pagination__chevron { color: var(--in
 
    ── 节索引 ──
      ⑨.0  内省:取舍说明(Path B、不引新 BEM、:has hover 淡化、wash 仅 CSS 钩子)
-     ⑨.1  .ink-card + .ink-card.layered ::before/::after  容器 + 三层纸(SRC:1169-1211)
+     ⑨.1  .ink-card + .ink-card.layered ::after/::before  容器 + 三层纸(SRC:1169-1211)
      ⑨.2  .ink-card > .wash                                鼠标墨迹钩子(SRC:514-541)
      ⑨.3  .posts-list :has hover 非焦点淡化                列表 sibling-aware 淡化
      ⑨.4  html.dark                                        墨夜覆盖(SRC:1184-1190 桥接)
@@ -1260,7 +1262,13 @@ html.dark .pagination__link:focus-visible .pagination__chevron { color: var(--in
      变 1 但渐变中心固定不动)。Task 9 不写任何 JS。
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ─── ⑨.1 .ink-card 容器 + .layered 三层纸(SRC:1169-1211 1:1) ──────────────── */
+/* ─── ⑨.1 .ink-card 容器 + .layered 三层纸(SRC:1169-1211 1:1) ───────────────
+   层叠关系(由前到后,沿用 SRC 实现顺序):
+     · .ink-card        基块,本体卡面(z-index 默认 0 / isolation: isolate)
+     · ::after          第一层副纸,偏移 +6/-6,z-index -1,opacity 0.65(SRC:1192-1201)
+     · ::before         第二层副纸,偏移 +12/-12,z-index -2,opacity 0.40(SRC:1202-1211)
+   两伪元素声明顺序与 SRC 实物一致(`::after` 在前、`::before` 在后),
+   z-index 决定层级,与 CSS 解析顺序无视觉绑定——刻意保留 SRC 顺序便于跨文件比对。 */
 .ink-card {
   position: relative;
   padding: 22px;
@@ -1287,6 +1295,7 @@ html.dark .pagination__link:focus-visible .pagination__chevron { color: var(--in
   border-radius: 2px;
   pointer-events: none;
 }
+
 .ink-card.layered::before {
   content: "";
   position: absolute;
@@ -1327,7 +1336,10 @@ html.dark .pagination__link:focus-visible .pagination__chevron { color: var(--in
 .ink-card > * { position: relative; z-index: 1; }
 
 /* ─── ⑨.3 .posts-list :has hover 非焦点淡化(克制不破节奏) ─────────────────── */
-/* sibling-aware:仅当列表内某卡 hover 时触发,单卡静态视图不受影响 */
+/* sibling-aware:仅当列表内某卡 hover 时触发,单卡静态视图不受影响。
+   opacity 0.6(>Typography 旧 0.5,sumi 克制度稍高——理由见 ⑨.0 banner hover
+   技法段)。transition cubic-bezier(0.23, 1, 0.32, 1) = ease-out-quart,
+   与 Task 3 keyframes 缓出入场动画同曲线,体感统一。 */
 .posts-list .ink-card {
   transition: opacity .35s cubic-bezier(0.23, 1, 0.32, 1);
 }
