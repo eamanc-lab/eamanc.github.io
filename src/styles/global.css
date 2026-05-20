@@ -651,11 +651,32 @@ html.dark .post-detail article.prose > p:first-of-type::first-letter {
    链接段(Task 5 ⑧)选择器**完全互斥**——无 :where(a) 通配、不进 main 容器。
 
    ── 节索引 ──
+     ⑦.0  .mini-seal 镜像  站点框架作用域(.site-title/.site-footer 后代;Task 3 段不动)
      ⑦.1  .site-title       站名 + 朱印 + 副标题(SiteTitle.astro)
      ⑦.2  .site-nav         主链接 + 社交图标(SiteNavigation.astro)
      ⑦.3  .site-footer      落款文本 + 朱印(SiteFooter.astro)
      ⑦.4  html.dark         墨夜覆盖(集中放段尾,与 Task 5 ⑫ 一致风格)
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── ⑦.0 .mini-seal 站点框架作用域镜像(局部规则,Task 3 段保持 byte-untouched) ──
+   ROOT CAUSE:Task 3 的 .mini-seal 规则定义在 .brush-divider .mini-seal 父子作用域
+   下(对应 SRC:434-444,SRC 所有用例都嵌 <div class="brush-divider"> 父容器);
+   SiteTitle/SiteFooter 内 bare <span class="mini-seal"> 不匹配该规则,导致 22×22
+   朱砂方印未出现。此处把 Task 3 规则 body 逐字段镜像到站点框架作用域,
+   绝不动 Task 3 现有规则的选择器或 body。
+   后续若有更多站点级朱印用例(如 Task 8 PostMeta),在此选择器并列追加即可。 */
+.site-title .mini-seal,
+.site-footer .mini-seal {
+  width: 22px; height: 22px;
+  background: var(--seal);
+  color: var(--paper);
+  font-family: var(--font-cal);
+  font-size: 14px;
+  display: grid; place-items: center;
+  clip-path: polygon(2% 4%, 96% 0%, 100% 98%, 4% 100%);
+  filter: url(#ink-bleed);
+  flex-shrink: 0;
+}
 
 /* ─── ⑦.1 站点标题:书法体大字 + 朱印签名 ─────────────────────────────────── */
 .site-title a { color: inherit; text-decoration: none; background: none; }
