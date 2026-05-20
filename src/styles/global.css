@@ -664,7 +664,20 @@ html.dark .post-detail article.prose > p:first-of-type::first-letter {
    SiteTitle/SiteFooter 内 bare <span class="mini-seal"> 不匹配该规则,导致 22×22
    朱砂方印未出现。此处把 Task 3 规则 body 逐字段镜像到站点框架作用域,
    绝不动 Task 3 现有规则的选择器或 body。
-   后续若有更多站点级朱印用例(如 Task 8 PostMeta),在此选择器并列追加即可。 */
+
+   ── 双向同步护栏(M-3) ──
+     · 改 Task 3 .brush-divider .mini-seal 任一属性 → 此选择器逐字段同步;
+     · 改此选择器任一属性 → 检查 Task 3 是否需要同步,避免视觉分歧。
+     两边任一方动了,都必须人工核对另一侧,11 个属性 byte-equality 是 sumi 朱印
+     1:1 保真的底线。
+   ── 扩展指引(M-4) ──
+     后续 Task 8+ 需要朱印的组件(如 PostMeta 的 tags / category seal),
+     **在自己 Task 段内独立创建** .post-meta .mini-seal 等规则(同 ⑦.0 局部
+     镜像模式),无需修改本节,保持各 Task 段互不触动。这样:
+       (a) Task 3 utility 段长期 byte-untouched;
+       (b) 每个 Task 段对自己的朱印用例自洽,git blame 责任清晰;
+       (c) YAGNI——避免预先升 .mini-seal 为全局工具类,等 ≥3 个用例
+           且属性完全一致时再讨论合并(届时再开 RFC,不在 Task 7 范围)。 */
 .site-title .mini-seal,
 .site-footer .mini-seal {
   width: 22px; height: 22px;
@@ -679,6 +692,12 @@ html.dark .post-detail article.prose > p:first-of-type::first-letter {
 }
 
 /* ─── ⑦.1 站点标题:书法体大字 + 朱印签名 ─────────────────────────────────── */
+/* 特异性约定(M-1):
+     · .site-title 子选择器写双类(如 `.site-title .site-title__name` 特异性 0,2,0)
+       —— 因 .site-title__name 是个 <h1>,需覆盖 article.prose 之外 UnoCSS presetTypography
+       全局 h1 默认及任何低特异性祖先规则;
+     · .site-nav__link / .site-footer__seal 用裸 BEM(特异性 0,1,0)即可,因这两个
+       命名独占、无外部冲突——故全段特异性不一致是有意为之,非疏忽。 */
 .site-title a { color: inherit; text-decoration: none; background: none; }
 .site-title .site-title__name-row {
   /* 名 + 朱印作为一行单元(中文水平阅读) */
@@ -718,6 +737,10 @@ html.dark .post-detail article.prose > p:first-of-type::first-letter {
 .site-nav__links li { margin: 0; }
 
 .site-nav__link {
+  /* 静止无底线(克制),仅 hover/focus/aria-current 触发 ::after 笔触下划线;
+     与 article.prose 链接的「静止 hairline + hover ink」做层级区别。
+     M-5:原 ::before 空规则(全程 background:transparent 无 hover 切换)已删,
+     纯哑规则只增维护负担,删除后视觉无变化。 */
   position: relative;
   display: inline-block;
   padding: 6px 4px;
@@ -727,15 +750,6 @@ html.dark .post-detail article.prose > p:first-of-type::first-letter {
   background: none;                                   /* 抹掉 UnoCSS attributify 可能的 hover bg */
   letter-spacing: 0.04em;
   transition: color .25s ease;
-}
-.site-nav__link::before {
-  content: "";
-  position: absolute;
-  left: 4px; right: 4px;
-  bottom: 0;
-  height: 1px;
-  background: transparent;                            /* 站点导航静止无底线,与正文 a 的 hairline 静止线区别(克制) */
-  pointer-events: none;
 }
 .site-nav__link::after {
   content: "";
@@ -756,6 +770,10 @@ html.dark .post-detail article.prose > p:first-of-type::first-letter {
 .site-nav__link:focus-visible::after {
   width: calc(100% - 8px);                            /* 留 padding 内边距,笔触不撞边 */
 }
+/* aria-current 属性由 Task 11 在 swup `page:view` 事件 JS 注入
+   (SSR 静态注入会被 swup 软切换破坏:swup 替换 main 不替换 header,
+    nav 一旦 SSR 渲染后软切换不更新)。此规则预留,Task 7 内暂哑,
+   待 Task 11 接管路由感知后自动生效。 */
 .site-nav__link[aria-current="page"] {
   color: var(--ink-strong);
 }
@@ -778,13 +796,20 @@ html.dark .post-detail article.prose > p:first-of-type::first-letter {
 .site-nav__social:focus-visible {
   color: var(--seal);
 }
-/* sr-only fallback:i-mdi 图标加载失败时屏幕阅读器仍可读出 social name */
+/* sr-only fallback:i-mdi 图标加载失败时屏幕阅读器仍可读出 social name。
+   I-1 兼容性双保险:`clip` 已被 CSS 规范废弃(MDN deprecated),现代浏览器
+   优先识别 `clip-path: inset(50%)`,二者并存确保老 webkit/旧 Firefox 仍能
+   隐藏,新引擎也走标准路径。
+   作用域注意:本规则当前仅限 `.site-nav__social .sr-only`,**不升全局工具类**
+   ——避免破 Task 3 utility 段 byte-untouched 纪律,且 YAGNI(Task 8/10
+   若再用 sr-only,按 ⑦.0 模式在各自 Task 段内独立加规则)。 */
 .site-nav__social .sr-only {
   position: absolute;
   width: 1px; height: 1px;
   padding: 0; margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip: rect(0, 0, 0, 0);                             /* 旧浏览器 fallback(deprecated 但仍生效) */
+  clip-path: inset(50%);                              /* 现代标准 */
   white-space: nowrap;
   border: 0;
 }
