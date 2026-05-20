@@ -40,8 +40,11 @@ export default defineConfig({
       // 颜色对:
       //   light: 'github-light'        近单色浅 token,与米黄宣纸调最相容;
       //   dark : 'github-dark-dimmed'  低饱和暗主题,与 sumi 夜底 (#1a1a2e 系) 协调。
-      // defaultColor:false → Shiki 不内联绝对 color,而是输出 `style="color:LIGHT;
-      //   --shiki-dark:DARK;--shiki-dark-bg:..."`,CSS 主导切换。
+      // defaultColor:false → 不输出绝对 `color` / `background-color` 值,仅输出
+      //   `--shiki-light:LIGHT; --shiki-dark:DARK; --shiki-light-bg:LIGHT-BG;
+      //   --shiki-dark-bg:DARK-BG` 四个 CSS vars(由 global.css ⑫.1 消费切换)。
+      //   defaultColor:'light'/'dark'(默认) 则会额外内联 `color:LIGHT` /
+      //   `background-color:LIGHT-BG` 绝对值,后续 CSS 覆盖需 !important。
       themes: {
         light: 'github-light',
         dark: 'github-dark-dimmed',

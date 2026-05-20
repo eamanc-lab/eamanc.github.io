@@ -117,7 +117,10 @@ function getUrl(id: string) {
     color: var(--ink);
   }
 
-  /* icon 颜色显式继承(克服 [...id].astro JS 注入的 text-white 内联 Uno 类) */
+  /* 确保 .clipboard-copy 的 color(默认 --ink-mid / hover --ink)继承到 .icon,
+     经 UnoCSS presetIcons 的 currentColor 链路驱动 mask-based SVG (i-mdi-*) 渲染。
+     `text-white` 已在同段 commit 的 line 73 注入串中删除,本规则现在是 currentColor
+     链路的显式锚定(防御后续 Uno 类回流时再次覆盖 color)。 */
   .clipboard-copy .icon {
     color: inherit;
   }

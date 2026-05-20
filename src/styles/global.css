@@ -1941,9 +1941,10 @@ html.dark .about__meta-date { color: var(--ink-soft); }
 /* ═══════════════════════════════════════════════════════════════════════════
    Task 12 — 代码块 Shiki 双 theme swap (sumi 单色墨 D8 决策)
    ⑫.0  astro.config.ts  shikiConfig.themes={light:'github-light',dark:'github-dark-dimmed'},
-        defaultColor:false  → 每个 token 输出 `style="color:LIGHT; --shiki-dark:DARK"`,
-        每个 <pre> 输出 `background-color:LIGHT-bg; --shiki-dark-bg:DARK-bg`。
-   ⑫.1  本段(global.css):html.dark 下把 token color / pre bg 改读 `--shiki-dark*`。
+        defaultColor:false  → 不输出绝对 `color`/`background-color`,仅输出
+        `--shiki-light:LIGHT; --shiki-dark:DARK; --shiki-light-bg; --shiki-dark-bg`
+        四个 CSS vars(每个 token <span> 与外层 <pre> 同形式注入)。
+   ⑫.1  本段(global.css):亮模式 color 读 --shiki-light,html.dark 下 swap 到 --shiki-dark。
    ⑫.2  src/pages/posts/[...id].astro  .clipboard-copy 改 sumi ink color-mix(脱 #30363d)。
    边界:不动 Task 5 ⑨/⑩ article.prose pre 容器壳(--paper-shade 底/--ink-hairline
         边/url(#ink-bleed)/--font-mono 全保留);本段仅 swap Shiki 自身注入的 token/bg
@@ -1963,7 +1964,15 @@ html.dark .about__meta-date { color: var(--ink-soft); }
      · 暗模式 token color → 读 `--shiki-dark`。同样 <pre> 底沿用 Task 5 dark 段的
        `var(--paper-shade)`(墨夜变体),不用 `--shiki-dark-bg` (github 暗夜灰会破坏
        sumi 纸感)。
-   作用域:article.prose pre.astro-code,与 Task 5 容器解耦,只接管 token 文字色。 */
+   作用域:article.prose pre.astro-code,与 Task 5 容器解耦,只接管 token 文字色。
+
+   注(Shiki 升级风险 — code review I-1):
+     · <span> 上的 --shiki-light / --shiki-dark = 该 token 的具体色值,Shiki spec 行为;
+     · <pre> 上的 --shiki-light / --shiki-dark = 未被 token <span> 包裹的 unwrapped
+       text 的 fallback 默认色(实测 Astro 5.11.1 + @astrojs/markdown-remark@6.3.2:
+       <pre style="--shiki-light:#24292e; --shiki-dark:#adbac7; ...">),由 Shiki
+       在 pre 级显式注入。该行为对 wrap:true 下的 unwrapped 文本生效,
+       但属 Shiki 实现细节,Shiki / @astrojs/markdown-remark 升级时须重新实测确认。 */
 article.prose pre.astro-code,
 article.prose pre.astro-code span {
   color: var(--shiki-light);
@@ -1972,8 +1981,12 @@ html.dark article.prose pre.astro-code,
 html.dark article.prose pre.astro-code span {
   color: var(--shiki-dark);
 }
-/* 不用 !important:Shiki 不再 inline `color`,只输出 CSS vars;本规则 (1,0,2) 特异性
-   足以胜过 Task 5 `article.prose pre code` (0,0,3) 中的 `color: inherit`。
+/* 不用 !important:Shiki 不再 inline `color`,只输出 CSS vars;本规则
+   `article.prose pre.astro-code span` 特异性 (0,2,3) 胜过 Task 5
+   `article.prose pre code` (0,1,3) 中的 `color: inherit`(类计数差 1,
+   元素计数同 3)。校验:element(article+prose+pre+astro-code+span)
+   = type 3 + class 2 = (0,2,3);Task 5 选择器 article+prose+pre+code
+   = type 3 + class 1 = (0,1,3)。
    实测亮模式 pre 内 token 显 #24292e github-light 深炭色,与 --paper-shade 米黄底
    接近 sumi 单色墨观感(github-light 本就是低饱和近单色,与 D8 "sumi 单色墨" 同语义)。 */
 
