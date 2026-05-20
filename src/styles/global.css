@@ -894,20 +894,48 @@ html.dark .site-footer p a:focus-visible { color: var(--ink-strong); border-bott
      ⑧.0  内省:不引入 .mini-seal/.sr-only 局部规则(理由见上)
      ⑧.1  .post-meta            文章页头容器 + 标题 + 日期 + 标签 chip
      ⑧.2  .post-category        分类 chip(seal-outline,SRC:582-594 缩小版)
+     ⑧.2b .post-tag             ink-outline chip(墨色弱语义变体,⑧.2 同构)
      ⑧.3  .pagination           上下篇/翻页(SRC:595-600 .btn.ghost 风)
      ⑧.4  html.dark             墨夜覆盖(集中段尾,与 Task 5/7 一致风格)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ─── ⑧.1 .post-meta:文章页头标题 + 日期 + 分类/标签 chip 容器 ───────────── */
-/* 作用域:PostMeta.astro <header class="post-meta"> 内;article.prose 之上,
-   故与 Task 5 链接技法选择器**完全互斥**(article.prose 是 main 容器内
-   独立的 <article>,PostMeta 在其外的 <header>)。 */
+/* 作用域:PostMeta.astro <header class="post-meta"> 在 LayoutPost.astro 的
+   <article class="prose"> 内部(LayoutPost.astro:14-17 已实测确认),故
+   Task 5 `article.prose :is(h1...)` 与 `article.prose h1` 选择器(0,1,1)
+   会合法匹配 PostMeta 内的 <h1 class="post-title post-meta__title">,
+   裸 .post-meta__title (0,1,0) 被 Task 5 字号/行高/字间距/上下边距四项压制。
+
+   ── 双类策略 + uno.config 同步护栏(M-2) ──
+   uno.config.js line 76:`['post-title', 'text-5 font-bold lh-7.5 m-0']` 是
+   .post-title 单类用例(archive/categories/about 等列表页 <h2>/<h3>)的
+   shortcut 默认值。<h1 class="post-title post-meta__title"> 双类策略下:
+     · 单类用例(列表页 <h2 class="post-title">)→ uno shortcut 生效;
+     · 双类用例(PostMeta <h1>)→ Task 8 `.post-meta .post-meta__title`
+       (0,2,0)覆盖 shortcut 与 Task 5 article.prose h1 两者。
+   ── 同步护栏 ──
+     · 改 .post-meta .post-meta__title 覆盖项(font-size/line-height 等)
+       ↔ 检查 uno.config.js shortcuts['post-title'] 默认值是否需对应调整;
+     · 改 shortcuts['post-title'] ↔ 检查 .post-meta .post-meta__title 是否
+       仍逐项覆盖到位(单类 vs 双类作用域不冲突,但视觉风格需协调)。
+
+   ── char-reveal JS 钩子规约(I-2) ──
+   .post-meta__title 是 Task 11 char-reveal 逐字动画的 CSS 钩子类,本 Task
+   仅作静态 display 字体 + 墨韵毛边,不引入任何 keyframes / JS:
+     · 触发时机:Task 11 在 swup `page:view` 事件回调内,把 .post-meta__title
+       的 textContent 拆分为 <span class="char">,逐字 stagger 应用
+       A16.1 char-reveal/char-underline keyframes(SRC:1096-1162);
+     · 钩子用途:本 Task 仅提供选择器锚点(类名 + 此规则覆盖 article.prose
+       h1 默认),不预先注入 span — 避免 SSR 渲染就把字拆掉影响选择器匹配;
+     · 不在本 Task 启用:无 keyframes、无 JS、无 will-change 等性能 hint;
+       Task 11 接管时只需 querySelectorAll('.post-meta__title') + 包字 + 注入
+       内联 animation-delay,无需回改本规则 body。 */
 .post-meta { font-family: var(--font-text); }
 
-.post-meta__title {
-  /* 文章标题:思源宋体 display 衬线大字,与 article.prose h1 同源但作用域独立
-     (article.prose h1 = 详情页正文 h1;.post-meta__title = 详情页/列表页头部 h1)。
-     char-reveal 逐字 JS 留 Task 11,此处仅静态字体 + 墨韵毛边。 */
+.post-meta .post-meta__title {
+  /* 双类选择器(0,2,0)击败 Task 5 `article.prose h1`(0,1,1):
+     必须如此,否则 font-size/line-height/letter-spacing/margin 被 Task 5
+     的 2.6rem/1.12/-0.02em/m:0 0 var(--sp-5) 覆盖。Task 5 段绝对不动。 */
   font-family: var(--font-display);
   font-weight: 500;
   color: var(--ink-strong);
@@ -918,13 +946,13 @@ html.dark .site-footer p a:focus-visible { color: var(--ink-strong); border-bott
   text-wrap: balance;
   filter: url(#ink-bleed);                              /* 标题边缘墨韵(与 article.prose h1 同源) */
 }
-.post-meta__title a {
+.post-meta .post-meta__title a {
   color: inherit;
   text-decoration: none;
   background: none;
 }
-.post-meta__title a:hover,
-.post-meta__title a:focus-visible {
+.post-meta .post-meta__title a:hover,
+.post-meta .post-meta__title a:focus-visible {
   color: var(--ink);
 }
 
@@ -961,6 +989,19 @@ html.dark .site-footer p a:focus-visible { color: var(--ink-strong); border-bott
    缩小为 chip 尺寸(小 padding/字号)。色用 --seal 边/字 → 朱砂层级。
    作用域:沿用既有 a.post-category 类名(被 archive/about/categories 多页引用),
    不破坏 markdown frontmatter / i18n 路径。 */
+
+/* ── .post-category__label char-reveal JS 钩子规约(I-2) ──
+   PostCategory.astro 内层 <span class="post-category__label>{category}</span>
+   是 Task 11 char-reveal 的钩子,本 Task 在 ⑧.2 节内**不为它写任何 CSS 规则**
+   (仅 HTML 结构插钩子):
+     · 触发时机:Task 11 在 swup `page:view` 事件回调内 querySelectorAll
+       ('.post-category__label'),把 textContent 拆分为 <span class="char">,
+       逐字 stagger 应用 A16.1 char-reveal keyframes(SRC:1096-1162);
+     · 钩子用途:仅作选择器锚点(分类名是单个 token,字数少,逐字反馈感强);
+       chip 视觉(seal-outline / hover transform)由 a.post-category 接管,
+       label 不参与 chip 形态,纯文本 wrapper;
+     · 不在本 Task 启用:无 keyframes、无 JS、无 CSS 规则;Task 11 接管时
+       只需 wrap span + 注入 inline animation-delay,无需在本节追加规则。 */
 a.post-category {
   position: relative;
   display: inline-flex;
@@ -1010,7 +1051,15 @@ a.post-category:active {
 
 /* ─── ⑧.2b .post-tag:ink-outline chip(同 .post-category 缩小版,墨色变体) ──
    标签从属层级:--ink-soft 描边 + --ink-mid 字色,#tag 前缀符号一并入字。
-   作用域:沿用既有 a.post-tag(PostMeta 内 .post-tags-inline 子元素)。 */
+   作用域:沿用既有 a.post-tag(PostMeta 内 .post-tags-inline 子元素)。
+
+   ── .post-tags-inline 历史类名说明(M-1) ──
+   PostMeta.astro 的 <span class="post-meta__tags post-tags-inline"> 双类:
+     · .post-tags-inline 是历史容器类名(原 typography 主题遗留),在 global.css
+       内**无独立 CSS 规则**;
+     · Task 8 以 .post-meta__tags BEM 接管 inline-flex 容器布局(见 ⑧.1);
+     · 沿用旧类纯为兼容外部页面 / 未来 i18n / Task 9/10 列表页可能的选择器引用,
+       不依赖其有任何 CSS 行为。 */
 a.post-tag {
   position: relative;
   display: inline-flex;
@@ -1123,7 +1172,7 @@ a.post-tag:active {
 /* ─── ⑧.4 html.dark 墨夜覆盖 ──────────────────────────────────────────────
    token 已在 :root html.dark 互换;此处仅显式收回少数 inherit 易丢失的覆写,
    保持 Task 5 ⑫ / Task 7 ⑦.4 同款风格(集中段尾,而非散在每条规则)。 */
-html.dark .post-meta__title { color: var(--ink-strong); }
+html.dark .post-meta .post-meta__title { color: var(--ink-strong); }
 html.dark .post-meta__row,
 html.dark .post-meta__label,
 html.dark .post-meta__date { color: var(--ink-soft); }
