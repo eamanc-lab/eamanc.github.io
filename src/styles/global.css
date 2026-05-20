@@ -1939,5 +1939,44 @@ html.dark .about__meta-date { color: var(--ink-soft); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Task 12 — 代码块 Shiki 双 theme swap (sumi 单色墨 D8 决策)
+   ⑫.0  astro.config.ts  shikiConfig.themes={light:'github-light',dark:'github-dark-dimmed'},
+        defaultColor:false  → 每个 token 输出 `style="color:LIGHT; --shiki-dark:DARK"`,
+        每个 <pre> 输出 `background-color:LIGHT-bg; --shiki-dark-bg:DARK-bg`。
+   ⑫.1  本段(global.css):html.dark 下把 token color / pre bg 改读 `--shiki-dark*`。
+   ⑫.2  src/pages/posts/[...id].astro  .clipboard-copy 改 sumi ink color-mix(脱 #30363d)。
+   边界:不动 Task 5 ⑨/⑩ article.prose pre 容器壳(--paper-shade 底/--ink-hairline
+        边/url(#ink-bleed)/--font-mono 全保留);本段仅 swap Shiki 自身注入的 token/bg
+        inline style,与 Task 5 容器解耦,无样式覆盖冲突。
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* ─── ⑫.1 暗夜 Shiki token swap(.astro-code 是 Astro 5 Shiki 输出根类) ──────── */
+/* Shiki dual theme + defaultColor:false 的实际 emit(实测 Astro 5 dist):
+     <pre class="astro-code astro-code-themes github-light github-dark-dimmed"
+          style="--shiki-light:#24292e; --shiki-dark:#adbac7;
+                 --shiki-light-bg:#fff; --shiki-dark-bg:#22272e;">
+       <code><span style="--shiki-light:#d73a49; --shiki-dark:#f47067">const</span> …
+   不直接吃 `color` / `background-color` inline —— 完全 CSS-driven。
+   策略:
+     · 亮模式 token color → 读 `--shiki-light`(--shiki-light-bg 不用,因为 <pre>
+       容器底由 Task 5 article.prose pre `var(--paper-shade)` 主导,sumi 宣纸感更佳;
+       Shiki 仅负责 token 文字色)。
+     · 暗模式 token color → 读 `--shiki-dark`。同样 <pre> 底沿用 Task 5 dark 段的
+       `var(--paper-shade)`(墨夜变体),不用 `--shiki-dark-bg` (github 暗夜灰会破坏
+       sumi 纸感)。
+   作用域:article.prose pre.astro-code,与 Task 5 容器解耦,只接管 token 文字色。 */
+article.prose pre.astro-code,
+article.prose pre.astro-code span {
+  color: var(--shiki-light);
+}
+html.dark article.prose pre.astro-code,
+html.dark article.prose pre.astro-code span {
+  color: var(--shiki-dark);
+}
+/* 不用 !important:Shiki 不再 inline `color`,只输出 CSS vars;本规则 (1,0,2) 特异性
+   足以胜过 Task 5 `article.prose pre code` (0,0,3) 中的 `color: inherit`。
+   实测亮模式 pre 内 token 显 #24292e github-light 深炭色,与 --paper-shade 米黄底
+   接近 sumi 单色墨观感(github-light 本就是低饱和近单色,与 D8 "sumi 单色墨" 同语义)。 */
+
+/* ═══════════════════════════════════════════════════════════════════════════
    end Functional skeleton — 后续 Task 追加规则应插在此闭区之前
    ═══════════════════════════════════════════════════════════════════════════ */

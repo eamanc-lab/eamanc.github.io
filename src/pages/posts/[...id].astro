@@ -67,7 +67,9 @@ function getUrl(id: string) {
   })
 
   const codeBlocks = Array.from(document.querySelectorAll('pre'))
-  const icon = "<div class='i-mdi-content-copy icon text-white'></div>"
+  // Task 12:删 `text-white`(GitHub 暗主题遗留),让 icon 继承 .clipboard-copy 的 sumi
+  // ink color(默认 --ink-mid,hover --ink)。i-mdi-* 是 iconify mask SVG,生效 currentColor。
+  const icon = "<div class='i-mdi-content-copy icon'></div>"
   for (const codeBlock of codeBlocks) {
     const wrapper = document.createElement('div')
     wrapper.className = 'code-container'
@@ -86,6 +88,13 @@ function getUrl(id: string) {
 </script>
 
 <style is:global>
+  /* ─── Task 12 ⑫.2 — .clipboard-copy sumi 化(配合 astro.config.ts ⑫.0 双 theme) ──
+     原色 #30363d(GitHub 暗灰)与 sumi 宣纸冲突。改用 ink 的 6% color-mix 透明叠加,
+     与 Task 8 .btn.ghost hover bg 同节奏。icon 默认 --ink-mid,hover --ink,亮/暗
+     模式都自洽(--ink-mid/--ink 在 :root 与 html.dark 段均已定义,Task 3)。
+     不加 filter:url(#ink-bleed-btn) —— 复制按钮是 UI 动作,毛边软化会削弱可点击
+     边界感(Task 8 .btn.ghost 同策略未加 ink-bleed)。border-radius 保 0.25rem 与
+     Task 5 article.prose pre 的 4px 同微圆收口节奏。 */
   .code-container {
     position: relative;
   }
@@ -99,9 +108,17 @@ function getUrl(id: string) {
     justify-content: center;
     align-items: center;
     border-radius: 0.25rem;
+    color: var(--ink-mid);
+    transition: background-color 200ms ease, color 200ms ease;
   }
 
   .clipboard-copy:hover {
-    background-color: #30363d;
+    background-color: color-mix(in oklab, var(--ink) 6%, transparent);
+    color: var(--ink);
+  }
+
+  /* icon 颜色显式继承(克服 [...id].astro JS 注入的 text-white 内联 Uno 类) */
+  .clipboard-copy .icon {
+    color: inherit;
   }
 </style>

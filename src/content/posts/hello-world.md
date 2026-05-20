@@ -16,6 +16,25 @@ description: '这是一篇占位文章，用于验证博客模板的样式和功
 
 > 引用块示例。用来确认左侧细线和缩进样式。
 
+## 代码块示例
+
+行内 `code` 走 sumi 单色墨。
+
+```ts
+// Astro 5 + Shiki 双 theme:sumi 单色墨
+import { defineConfig } from 'astro/config'
+
+export default defineConfig({
+  markdown: {
+    shikiConfig: {
+      themes: { light: 'github-light', dark: 'github-dark-dimmed' },
+      defaultColor: false,
+      wrap: true,
+    },
+  },
+})
+```
+
 ---
 
 分割线上下的间距也在确认范围内。
