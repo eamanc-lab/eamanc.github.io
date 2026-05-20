@@ -1433,7 +1433,7 @@ html.dark .ink-card > .wash {
      ⑩.2  .tag-cloud / __item / __hash / __label / __count  seal/ink chip
      ⑩.3  .archive / .archive-index / __title / __prefix  页面级容器/标题
      ⑩.4  .categories-index / --tags                       分类总览页变体
-     ⑩.5  .about / __header / __title / __meta             关于页 header
+     ⑩.5  .about / __header / __title / __meta / __meta-label / __meta-date  关于页 header
      ⑩.6  .post-list :has hover 非焦点淡化                 sibling-aware
      ⑩.7  html.dark                                        墨夜覆盖
 
@@ -1625,17 +1625,20 @@ html.dark .ink-card > .wash {
 .archive {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-7);
+  gap: var(--sp-7);                                   /* 跨年节奏 56px,flex gap 在 flex 子项间自动生效——单一真值,勿叠加子项 margin-top */
 }
 .archive-index {
   /* 单 section 容器:archive 按年、categories/[...category]、tags/[...tag] 共用 */
   margin: 0;
 }
-.archive-index + .archive-index {
-  margin-top: var(--sp-6);                            /* archive 多年场景兜底(虽 .archive 父已 gap,稳健兜底) */
-}
+/* 历史 .archive-index + .archive-index { margin-top: var(--sp-6) } 已删:
+   flex column 内 `gap` 与子项 `margin-top` 叠加非替代(non-collapsing margins),
+   原"兜底"会让跨年总间距 = sp-7 (56px) + sp-6 (36px) = 92px,与 .archive 父
+   gap 单一真值意图冲突。flex gap 自 ~2020 在所有主流浏览器(Chrome 84+/
+   Firefox 63+/Safari 14.1+)直接生效,无需 margin-top 兜底。 */
 .archive-index__title {
-  /* sumi 显示字体(与 article.prose h2 / .site-title 字阶呼应) */
+  /* sumi 显示字体(与 article.prose h2 / .site-title 字阶呼应)
+     字阶与 .categories-index__title 保持同步(见 ⑩.4);改此处须同步彼处。 */
   font-family: var(--font-display);
   font-weight: 500;
   color: var(--ink-strong);
@@ -1671,7 +1674,11 @@ html.dark .ink-card > .wash {
 .categories-index__title {
   /* 与 .archive-index__title 字阶一致,但语义上是"页内大段标题"
      (Categories / Tags),用 uno shortcut 已 reset 的 .post-title 类不再
-     适用——本类完整复制 .archive-index__title body,保持 sumi Title 字阶。 */
+     适用——字阶 1:1 复制 .archive-index__title(font-family/font-weight/
+     color/font-size/line-height/letter-spacing/margin/text-wrap/filter
+     共 9 项),但**省略** display:flex / align-items:baseline / gap:0.3em
+     三项——分类总览页标题(Categories / Tags)无 __prefix 子元素,不需要
+     flex 布局。改字阶时须双向同步 .archive-index__title(见 ⑩.3)。 */
   font-family: var(--font-display);
   font-weight: 500;
   color: var(--ink-strong);
