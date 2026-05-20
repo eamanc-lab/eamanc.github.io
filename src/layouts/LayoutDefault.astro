@@ -55,6 +55,18 @@ const dark = themeConfig.appearance.theme === 'dark'
         document.removeEventListener('animationend', removeAnimation, false)
       }
     </script>
+    {/* Task 11 — sumi 交互 JS 入口
+        - 默认 module 编译(无 is:inline),走 Astro/Vite ts import 链路,严格 TS 校验通过
+        - astro:page-load 是 Astro 官方事件,@swup/astro 在每次软切换后自动派发(与首屏
+          DOMContentLoaded 行为统一);initSumi() 内置 dataset 幂等标记,header/footer
+          持久元素不重复绑事件,<main> 内新 DOM 自动重新初始化
+        - 首屏立即调一次 initSumi():处理 hydration 后第一帧的 char-reveal/aria-current/
+          pointer tracking;astro:page-load 自此后接管 */}
+    <script>
+      import { initSumi } from '~/scripts/sumi'
+      document.addEventListener('astro:page-load', initSumi)
+      initSumi()
+    </script>
     <style>
       /* 页面过渡动画 - 由 global.css 的 gentle-rise 接管入场 */
       html.is-animating .transition-swup-main {
