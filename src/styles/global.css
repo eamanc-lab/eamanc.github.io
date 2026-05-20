@@ -1783,34 +1783,57 @@ html.dark .about__meta-label,
 html.dark .about__meta-date { color: var(--ink-soft); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Task 11 — Char-reveal keyframe(逐字入场 CSS 钩子,由 src/scripts/sumi.ts 拆字驱动)
+   Task 11 — sumi 交互 CSS 钩子(逐字入场 + 水波环,由 src/scripts/sumi.ts 驱动)
    ----------------------------------------------------------------------------
    背景:Task 8/10 已铺好 char-reveal 钩子类(.post-meta__title / .post-list__title
    / .about__title / .post-category__label / .site-title__name),Task 3 段不含
    `@keyframes char-reveal` 与 `.ch` CSS;本段独立补足,与 Task 3-10 段完全互斥
    (Task 3 已有 mist-drift / brush-draw / gentle-rise 三个 keyframe,本段新增的
-   `char-reveal` 名字唯一,无冲突)。
+   `char-reveal` / `sumi-water` 名字唯一,无冲突)。
+
+   ── 涵盖范围 ──
+     ⑪.1  char-reveal CSS(.ch + @keyframes char-reveal + reduce-motion 兜底)
+     ⑪.2  sumi-ring CSS(.sumi-ring + @keyframes sumi-water + ripple 容器三件套)
+          —— 注:Task 3 spec 锚点表漏了 SRC:21-71 .btn .sumi-ring/@keyframes
+          sumi-water,本段补齐(JS 与 CSS 同 Task 落地符合关联性,不追改 Task 3
+          段以保 spec reviewer 已建立的 byte-untouched md5 跨 commit 证据链)。
 
    ── SRC 锚点 ──
      · SRC:4483-4495 `.sumix .char-reveal` + `.sumix .char-reveal .ch` +
        `@keyframes sumix-char-in`(博客无 .sumix 命名空间,本段重命名 `char-reveal`
        为 keyframe + `.ch` 裸类作用域,JS 拆字时不嵌 `.char-reveal` 父类壳)
+     · SRC:21 `.btn { position:relative; isolation:isolate; overflow:visible }`
+       (ripple 容器三件套,博客无全局 .btn 类,本段以 ripple 实际容器选择器组
+        重写;Task 8 .post-category 与 Task 10 .tag-cloud__item 已各自含完整三件套,
+        Task 8 .pagination__link 缺 isolation/overflow,本段 patch 块补齐而不
+        追改 Task 8 段)
+     · SRC:30-48 `.btn .sumi-ring` 区段(本段去 `.btn` 父类前缀,作裸 `.sumi-ring`
+        类,适用所有 ripple 容器;sumi.ts initRipples 中 `closest()` 限定
+        .post-category/.pagination__link/.tag-cloud__item,不会污染其它 DOM)
+     · SRC:51-57 `@keyframes sumi-water` 五关键帧(0%/8%/30%/55%/100%
+        三轴动画 transform scale + opacity + border-width 缩放),body 1:1
 
    ── 选择器特异性 ──
      · `.ch`(0,1,0) 裸类,可被任一更高特异性祖先覆盖(如 article.prose 之内
        的 .ch 会被 prose 链接背景规则压制,但 prose 规则不命中 .ch 文字本身);
-     · 选择器仅作用于本脚本生成的 <span class="ch">,生产内 .ch 名不会被 markdown
-       内容引用(博客内容规范无 .ch 类),命名碰撞风险 0。
+     · `.sumi-ring`(0,1,0) 裸类,仅出现在 JS 动态 createElement 的 span 内,
+       生产内无 markdown / 其它组件引用该名,命名碰撞风险 0。
+     · 选择器仅作用于本脚本生成的 <span class="ch"> / <span class="sumi-ring">,
+       博客内容规范无 .ch / .sumi-ring 类。
 
    ── reduce-motion 降级 ──
      `@media (prefers-reduced-motion: reduce)` 把 .ch 恢复 opacity:1 / transform:0
-     / filter:none / animation:none,达到即时显示(脚本仍会拆字但视觉无动效)。
+     / filter:none / animation:none,达到即时显示(脚本仍会拆字但视觉无动效);
+     .sumi-ring 在 reduce-motion 下由 sumi.ts initRipples 整个函数 early-return
+     从源头避免 DOM 生成,无需 CSS 兜底(防御性可加但 zero-element CSS 多余)。
 
    ── stagger 取舍 ──
      `--i` 由 sumi.ts 注入字索引(0,1,2,...),`animation-delay: calc(var(--i)*38ms)`
      —— 38ms 比 SRC:4490 的 50ms 紧一档,博客标题字数多时(如 5+ 中文)50ms 总
      延迟会超 250ms 视觉拖沓,38ms 即"等距连续"(参 typography 旧入场节奏)。
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── ⑪.1 char-reveal 逐字入场 ───────────────────────────────────────────── */
 
 .ch {
   /* 1:1 自 SRC:4484-4491 `.sumix .char-reveal .ch`,去 .sumix / .char-reveal
@@ -1841,6 +1864,78 @@ html.dark .about__meta-date { color: var(--ink-soft); }
     filter: none;
     animation: none;
   }
+}
+
+/* ─── ⑪.2 sumi-ring 水波环 ───────────────────────────────────────────────
+   作用域:本规则匹配 JS(sumi.ts initRipples)动态生成的 <span class="sumi-ring">,
+   仅作为 .post-category / .pagination__link / .tag-cloud__item 的 absolute 子元素
+   存在(初见 sumi.ts:initRipples)。
+
+   ── SRC:30-48 字段对照(1:1,去 .btn 父类前缀) ──
+     · `--peak: 0.55; --bw: 28px;`  每环可被 JS 改写的参数(initRipples 实际注入
+       PARAMS 三档 0.62/0.42/0.26 与 32/24/18,fallback 默认值即 SRC 原值)
+     · position:absolute            JS 设 inline left/top 控制圆心
+     · border-radius:50%            正圆
+     · border:solid currentColor + border-width var(--bw)  墨色描边(currentColor
+       取宿主元素 color,如 .post-category 的 var(--seal) 朱砂色,墨纸 multiply 后
+       变深朱;.pagination__link 的 var(--ink) 墨色;.tag-cloud__item 同 ink-mid)
+     · background:transparent       仅环非盘
+     · opacity:0; transform:scale(0); keyframe 起点
+     · pointer-events:none          不阻塞二次点击
+     · mix-blend-mode:multiply      墨韵融合(纸底 multiply 出深墨)
+     · animation:sumi-water 2.4s cubic-bezier(.22,.5,.35,1) forwards
+                                    JS 改写 animation-duration(主 1800/中 1500/尾 1200ms)
+                                    cubic-bezier 保留(SRC 原曲线,JS 仅改 duration)
+     · z-index:0                    与宿主 .post-category::before(z-index:-1)互不挡
+     · box-shadow inset 3px + 外发光 12px 4px  环边内外缘墨晕加强
+*/
+.sumi-ring {
+  /* 每环可被 JS 改写的参数(通过 inline style 注入,fallback 默认见上 SRC:32-33) */
+  --peak: 0.55;
+  --bw: 28px;
+  position: absolute;
+  border-radius: 50%;
+  border: solid currentColor;
+  border-width: var(--bw);
+  background: transparent;
+  opacity: 0;
+  transform: scale(0);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  animation: sumi-water 2.4s cubic-bezier(.22, .5, .35, 1) forwards;
+  z-index: 0;
+  box-shadow:
+    inset 0 0 0 3px color-mix(in oklab, currentColor 45%, transparent),
+    0 0 12px 4px color-mix(in oklab, currentColor 35%, transparent);
+}
+
+/* ── SRC:51-57 1:1 五关键帧:transform scale 0→1 + opacity 起伏 + border-width
+   按比例 0.88/0.55/0.28/0.15 衰减,中段 30% 处 opacity * 0.55,55% 处归零
+   ("55% 时 opacity 归零"= 物理上墨环最盛后立刻褪去,纸感) */
+@keyframes sumi-water {
+  0%   { transform: scale(0);   opacity: 0;                        border-width: var(--bw); }
+  8%   {                         opacity: var(--peak);              border-width: calc(var(--bw) * 0.88); }
+  30%  {                         opacity: calc(var(--peak) * 0.55); border-width: calc(var(--bw) * 0.55); }
+  55%  {                         opacity: 0;                        border-width: calc(var(--bw) * 0.28); }
+  100% { transform: scale(1);   opacity: 0;                        border-width: calc(var(--bw) * 0.15); }
+}
+
+/* ── ripple 容器三件套(SRC:21 `.btn { position:relative; isolation:isolate;
+   overflow:visible }` 同款)──
+   核实状态(此前各 Task 段实查):
+     · a.post-category(Task 8 ⑧.2):relative ✓ isolate ✓ visible ✓(已全)
+     · .tag-cloud__item(Task 10):  relative ✓ isolate ✓ visible ✓(已全)
+     · .pagination__link(Task 8 ⑧.3):relative ✓ isolate ✗ visible ✗(缺 2 项)
+   策略:本 patch 块对三选择器统一声明三件套,缺者补足,已有者无副作用
+   (CSS 后规则覆盖等值前规则,无视觉差)。**不追改 Task 8/9/10 段以保 byte-
+   untouched** —— 旧规则全保留,本块仅在末尾追加确保 sumi-ring 绝对定位上下文
+   完整。 */
+.post-category,
+.pagination__link,
+.tag-cloud__item {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

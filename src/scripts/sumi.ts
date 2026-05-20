@@ -59,11 +59,15 @@
      按 Task 7-10 BEM 钩子选择器精确挂载,见各 init 函数内注释。
    ═══════════════════════════════════════════════════════════════════════════ */
 
-// 元素级 dataset 标记键:`data-sumi-init="1"` 表示该元素已被本脚本绑定/处理过。
-// 跨多个 init 函数共享,因为同一元素可能被多种 init(如 .ink-card 既挂
-// pointer tracking 又可能将来挂 ripple),但 dataset 字符串值不同则可并存
-// (用 `sumiInit-${variant}` 模式,见各 init 内具体使用)。
-const DATA_INIT = 'sumiInit' // dataset.sumiInit
+// 元素级 dataset 标记键:`data-sumi-init` 表示该元素已被本脚本绑定/处理过。
+// 同 key(`sumiInit`)在不同 init 函数中用不同**值**区分用途(并非 key 后缀变体):
+//   · initPointerTracking 在 .ink-card 上写 `'1'`
+//   · initBrushDividers 在 .brush-divider 上写 `'divider'`
+// 因 .ink-card 与 .brush-divider 是不同元素,同 key 不会冲突;读取时各 init
+// 函数比对自家约定的 value(如 `=== '1'` / `=== 'divider'`),非自家不跳过,
+// 仍可被别的 init 处理。char-reveal 拆字会改 innerHTML,与 pointer 事件绑定
+// 语义差异大,独立用 `sumiReveal` key 隔离(见下行)。
+const DATA_INIT = 'sumiInit' // dataset.sumiInit(value: '1' = pointer 已绑;'divider' = IO 已 observe)
 const DATA_INIT_REVEAL = 'sumiReveal' // dataset.sumiReveal(char-reveal 独占,避免与 pointer 冲突)
 
 /** 判断当前是否启用 reduce-motion 偏好(用户系统/浏览器设置)。 */
@@ -80,8 +84,11 @@ function prefersReducedMotion(): boolean {
    pointermove 监听器,把鼠标相对卡片 bounds 的百分比写入 --mx/--my CSS 变量,
    驱动 `.ink-card > .wash` radial-gradient 中心点跟随鼠标。
    - SRC:6497-6510 trackPointer 1:1 复刻(用 `%` 与 :root 初始 50%/50% 单位一致)。
-   - pointerleave 时不 reset(让墨迹"停留"在离开点,sumi 韵味:墨迹不立即消散,
-     由 CSS transition opacity .8s 兜底淡出;若 reset 反而显得机械)。
+   - pointerleave 时不 reset(让墨迹"停留"在离开点,sumi 韵味:墨迹不立即消散;
+     Task 9 ⑨.2 既有规则 `.ink-card > .wash { opacity:0; transition: opacity .8s
+     ease; }` + `.ink-card:hover > .wash { opacity:1; }`(global.css:1320-1335)
+     让 wash 在 :hover 失效时由 opacity:1 → opacity:0 自动 .8s 淡出,--mx/--my
+     位置不变但视觉消失,达成"墨迹原地隐去"效果;若 reset 反而显得机械)。
    - reduce-motion 下仍挂(pointer tracking 是功能性的 hover 反馈,不是动效)。
    - 幂等:dataset.sumiInit === '1' 跳过。 */
 function initPointerTracking(): void {
