@@ -869,5 +869,299 @@ html.dark .site-footer p a:hover,
 html.dark .site-footer p a:focus-visible { color: var(--ink-strong); border-bottom-color: var(--ink-mid); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Task 8 — Post meta / Category / Pagination(文章元信息/分类/分页 sumi 化)
+   1:1 自 showcase .btn.outline 缩小版作分类/标签 chip(SRC:582-594) +
+   .btn.ghost 作上下篇/翻页按钮(SRC:595-600)。
+
+   本段所有选择器以 .post-meta / .post-category / .post-tag / .pagination 高
+   特异性命名,与 article.prose(Task 5)、.site-*(Task 7)、.brush-divider
+   (Task 3) 选择器**完全互斥**——chip 类名沿用 .post-category / .post-tag
+   是因 archive/tags/categories/about 5+ 外部页面已引用,改名牵连大;
+   PostMeta 增 BEM 钩子 .post-meta__title / .post-meta__date(供 Task 11
+   char-reveal JS 引用),不改既有语义类名。
+
+   ── 命名/配色取舍说明 ──
+     · 分类用 --seal 描边/字色(朱砂 chip,层级感稍重)
+     · 标签用 --ink-soft 描边/--ink-mid 字色(墨色 chip,从属层级)
+     · Pagination 上下篇/翻页 .btn.ghost 风(无 ::before 墨晕,hover 淡墨底):
+       链接非主要 CTA,克制处理
+     · 标题 .post-meta__title 静态 var(--font-display) 衬线,
+       char-reveal 逐字 JS 留 Task 11(本 Task 不实现 keyframes/JS)
+     · 不需朱印(chip 已用 seal 边色传达朱砂);若 Task 9+ 需要,按 ⑦.0
+       模式在各自 Task 段内独立加 .post-meta .mini-seal 规则
+
+   ── 节索引 ──
+     ⑧.0  内省:不引入 .mini-seal/.sr-only 局部规则(理由见上)
+     ⑧.1  .post-meta            文章页头容器 + 标题 + 日期 + 标签 chip
+     ⑧.2  .post-category        分类 chip(seal-outline,SRC:582-594 缩小版)
+     ⑧.3  .pagination           上下篇/翻页(SRC:595-600 .btn.ghost 风)
+     ⑧.4  html.dark             墨夜覆盖(集中段尾,与 Task 5/7 一致风格)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── ⑧.1 .post-meta:文章页头标题 + 日期 + 分类/标签 chip 容器 ───────────── */
+/* 作用域:PostMeta.astro <header class="post-meta"> 内;article.prose 之上,
+   故与 Task 5 链接技法选择器**完全互斥**(article.prose 是 main 容器内
+   独立的 <article>,PostMeta 在其外的 <header>)。 */
+.post-meta { font-family: var(--font-text); }
+
+.post-meta__title {
+  /* 文章标题:思源宋体 display 衬线大字,与 article.prose h1 同源但作用域独立
+     (article.prose h1 = 详情页正文 h1;.post-meta__title = 详情页/列表页头部 h1)。
+     char-reveal 逐字 JS 留 Task 11,此处仅静态字体 + 墨韵毛边。 */
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink-strong);
+  font-size: 2.1rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-wrap: balance;
+  filter: url(#ink-bleed);                              /* 标题边缘墨韵(与 article.prose h1 同源) */
+}
+.post-meta__title a {
+  color: inherit;
+  text-decoration: none;
+  background: none;
+}
+.post-meta__title a:hover,
+.post-meta__title a:focus-visible {
+  color: var(--ink);
+}
+
+.post-meta__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+.post-meta__label {
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.post-meta__date {
+  /* JetBrains Mono 等宽体,sumi 元信息惯例(SRC blockquote cite / kbd 同源) */
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+}
+.post-meta__cats,
+.post-meta__tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─── ⑧.2 .post-category:seal-outline chip(SRC:582-594 .btn.outline 缩小版) ──
+   1:1 自 SRC .btn.outline(透明底 + 1.5px 描边经 url(#ink-bleed-btn) 软边),
+   缩小为 chip 尺寸(小 padding/字号)。色用 --seal 边/字 → 朱砂层级。
+   作用域:沿用既有 a.post-category 类名(被 archive/about/categories 多页引用),
+   不破坏 markdown frontmatter / i18n 路径。 */
+a.post-category {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  font: 500 0.74rem/1.5 var(--font-text);
+  color: var(--seal);
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  isolation: isolate;
+  transition: transform .25s cubic-bezier(.3,.9,.3,1), color .25s;
+  overflow: visible;
+}
+a.post-category::before {
+  /* Filtered ink-shape behind text — SRC:582-589 .btn.outline::before 1:1 */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--seal);
+  filter: url(#ink-bleed-btn);
+  border-radius: inherit;
+  transition: background .25s, box-shadow .25s;
+}
+a.post-category:hover,
+a.post-category:focus-visible {
+  color: var(--seal-deep);
+  transform: translateY(-1px);
+}
+a.post-category:hover::before,
+a.post-category:focus-visible::before {
+  background: color-mix(in oklab, var(--seal) 8%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--seal-deep);
+}
+a.post-category:active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: .12s;
+}
+
+/* ─── ⑧.2b .post-tag:ink-outline chip(同 .post-category 缩小版,墨色变体) ──
+   标签从属层级:--ink-soft 描边 + --ink-mid 字色,#tag 前缀符号一并入字。
+   作用域:沿用既有 a.post-tag(PostMeta 内 .post-tags-inline 子元素)。 */
+a.post-tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  font: 400 0.74rem/1.5 var(--font-text);
+  color: var(--ink-mid);
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  isolation: isolate;
+  transition: transform .25s cubic-bezier(.3,.9,.3,1), color .25s;
+  overflow: visible;
+}
+a.post-tag::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ink-soft);
+  filter: url(#ink-bleed-btn);
+  border-radius: inherit;
+  transition: background .25s, box-shadow .25s;
+}
+a.post-tag:hover,
+a.post-tag:focus-visible {
+  color: var(--ink-strong);
+  transform: translateY(-1px);
+}
+a.post-tag:hover::before,
+a.post-tag:focus-visible::before {
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+a.post-tag:active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: .12s;
+}
+
+/* ─── ⑧.3 .pagination:上下篇/翻页 — SRC:595-600 .btn.ghost 风 ──────────────
+   .btn.ghost 特征:无 ::before 墨晕底,hover 淡墨底 color-mix --ink 6%。
+   链接非主要 CTA → 克制处理,与 chip 形成层级差异。 */
+.pagination {
+  font-family: var(--font-text);
+  color: var(--ink-soft);
+}
+.pagination__count {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+.pagination__count-num {
+  /* 数字 mono 体 — sumi 数据元素惯例 */
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink-mid);
+  letter-spacing: 0.04em;
+}
+.pagination__count-sep {
+  color: var(--ink-faint);
+  margin: 0 2px;
+}
+
+.pagination__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font: 500 0.88rem/1 var(--font-text);
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background .25s, color .25s, transform .25s cubic-bezier(.3,.9,.3,1);
+}
+.pagination__link:hover,
+.pagination__link:focus-visible {
+  /* SRC:600 .btn.ghost:hover { background: color-mix(in oklab, var(--ink) 6%, transparent); } */
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  color: var(--ink-strong);
+  transform: translateY(-1px);
+}
+.pagination__link:active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: .12s;
+}
+
+.pagination__chevron {
+  /* i-mdi-chevron-double-{left,right} 图标:静默 ink-mid,hover 跟 link 升级 ink-strong */
+  color: var(--ink-mid);
+  transition: color .25s;
+}
+.pagination__link:hover .pagination__chevron,
+.pagination__link:focus-visible .pagination__chevron {
+  color: var(--ink-strong);
+}
+
+/* ─── ⑧.4 html.dark 墨夜覆盖 ──────────────────────────────────────────────
+   token 已在 :root html.dark 互换;此处仅显式收回少数 inherit 易丢失的覆写,
+   保持 Task 5 ⑫ / Task 7 ⑦.4 同款风格(集中段尾,而非散在每条规则)。 */
+html.dark .post-meta__title { color: var(--ink-strong); }
+html.dark .post-meta__row,
+html.dark .post-meta__label,
+html.dark .post-meta__date { color: var(--ink-soft); }
+
+html.dark a.post-category { color: var(--seal); }
+html.dark a.post-category::before { box-shadow: inset 0 0 0 1.5px var(--seal); }
+html.dark a.post-category:hover,
+html.dark a.post-category:focus-visible { color: var(--seal-soft); }
+html.dark a.post-category:hover::before,
+html.dark a.post-category:focus-visible::before {
+  background: color-mix(in oklab, var(--seal) 10%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--seal-soft);
+}
+
+html.dark a.post-tag { color: var(--ink-mid); }
+html.dark a.post-tag::before { box-shadow: inset 0 0 0 1.5px var(--ink-soft); }
+html.dark a.post-tag:hover,
+html.dark a.post-tag:focus-visible { color: var(--ink-strong); }
+html.dark a.post-tag:hover::before,
+html.dark a.post-tag:focus-visible::before {
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+
+html.dark .pagination,
+html.dark .pagination__count { color: var(--ink-soft); }
+html.dark .pagination__count-num { color: var(--ink-mid); }
+html.dark .pagination__count-sep { color: var(--ink-faint); }
+html.dark .pagination__link { color: var(--ink); }
+html.dark .pagination__link:hover,
+html.dark .pagination__link:focus-visible {
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+  color: var(--ink-strong);
+}
+html.dark .pagination__chevron { color: var(--ink-mid); }
+html.dark .pagination__link:hover .pagination__chevron,
+html.dark .pagination__link:focus-visible .pagination__chevron { color: var(--ink-strong); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
    end Functional skeleton — 后续 Task 追加规则应插在此闭区之前
    ═══════════════════════════════════════════════════════════════════════════ */

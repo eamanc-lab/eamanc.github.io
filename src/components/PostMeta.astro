@@ -14,16 +14,20 @@ const categoryList = post.data.categories ?? []
 const tags = post.data.tags ?? []
 ---
 
-<header flex="~ col gap-2">
-  <h1 class="post-title">
+<header class="post-meta" flex="~ col gap-2">
+  <h1 class="post-title post-meta__title">
     <a class="not-prose" href={`/posts/${post.id}/`}>{post.data.title}</a>
   </h1>
-  <div class="text-3.5">
-    <span>{t(post.data.modDate ? 'updated_at' : 'posted_at')}</span>
-    <time>{formatDate(post.data.modDate ?? post.data.pubDate)}</time>
-    {categoryList.map((category) => <PostCategory category={category} />)}
+  <div class="post-meta__row text-3.5">
+    <span class="post-meta__label">{t(post.data.modDate ? 'updated_at' : 'posted_at')}</span>
+    <time class="post-meta__date">{formatDate(post.data.modDate ?? post.data.pubDate)}</time>
+    {categoryList.length > 0 && (
+      <span class="post-meta__cats">
+        {categoryList.map((category) => <PostCategory category={category} />)}
+      </span>
+    )}
     {tags.length > 0 && (
-      <span class="post-tags-inline">
+      <span class="post-meta__tags post-tags-inline">
         {tags.map((tag: string) => (
           <a class="post-tag not-underline-hover" href={`/tags/${tag}`}>#{tag}</a>
         ))}
