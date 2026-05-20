@@ -5,24 +5,31 @@ const { navLinks, socialLinks } = themeConfig.site
 const { translate: t } = Astro.locals
 ---
 
-<nav class="text-center font-bold" flex="~ col gap-4">
-  <ul lg="flex-col items-start text-4" class="text-3.5" flex="~ row gap-2 justify-center">
+<!-- Sumi-e 化:站点导航独立类 .site-nav,选择器与 article.prose 链接段完全隔离。
+     - 主链接 ink-soft → hover ink-strong + sumi 笔触下划线渐展(::after width 0%→100%,
+       filter:url(#ink-bleed),与 Task 5 article.prose 链接同源技法但作用域不同)
+     - 社交图标 ink-mid → hover seal(朱砂)
+     - i-mdi span 内的纯文字 name 用 sr-only 包裹(图标加载失败时的 a11y fallback 仍存在,
+       视觉不可见;移除会失去无图标态可访问性)。 -->
+<nav class="site-nav" flex="~ col gap-4">
+  <ul class="site-nav__links" flex="~ row gap-2 justify-center" lg="flex-col items-start">
     {
       navLinks.map((nav) => (
         <li>
-          <a class="" href={nav.href}>
+          <a class="site-nav__link" href={nav.href}>
             {t(nav.name)}
           </a>
         </li>
       ))
     }
   </ul>
-  <ul flex="~ row gap-1 justify-center">
+  <ul class="site-nav__socials" flex="~ row gap-1 justify-center">
     {
       socialLinks.map(({ href, name }) => (
         <li>
-          <a href={href} target="_blank" title={name} class="not-underline-hover inline-flex items-center">
-            <span class:list={[`i-mdi-${name}`, 'w-6 h-6']}>{name}</span>
+          <a href={href} target="_blank" title={name} class="site-nav__social not-underline-hover inline-flex items-center">
+            <span class:list={[`i-mdi-${name}`, 'w-6 h-6']} aria-hidden="true" />
+            <span class="sr-only">{name}</span>
           </a>
         </li>
       ))

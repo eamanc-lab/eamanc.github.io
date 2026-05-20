@@ -4,22 +4,27 @@ import { themeConfig } from '~/.config'
 const { title, subtitle } = themeConfig.site
 ---
 
-<!-- 方案 2 放大版：签名落款 + 大字 -->
+<!-- Sumi-e 化:书法体大字 + 朱印 + 笔触式分隔。
+     - 大标题用 var(--font-cal) Ma Shan Zheng 书法体(中文水墨韵)、color:var(--ink-strong)
+     - .mini-seal 朱印汉字"墨"(复用 Task 3 既有原子,SRC:434-444),博客签名印
+     - 副标题用 var(--font-text) 无衬线、color:var(--ink-soft) 小字
+     - 分隔短线改为 var(--ink-hairline) 单像素淡墨细线
+     - 保留 <a href="/" class="not-underline-hover ..."> 和 UnoCSS attributify(不破坏 swup)
+     - char-reveal 逐字动画属 Task 11,本 Task 不实现,标题静态字体即可 -->
 <hgroup
   lg="items-end text-right"
   flex="~ col"
-  class="cursor-pointer text-center duration-500 ease-in-out"
+  class="site-title cursor-pointer text-center duration-500 ease-in-out"
 >
   <a
     class="not-underline-hover group inline-flex flex-col items-center"
     href="/"
   >
-    <h1 class="text-7 font-header font-bold tracking-widest leading-tight"
-      style="letter-spacing: 0.15em;"
-    >{title}</h1>
-    <div class="my-2" style="width: 28px; height: 1px; opacity: 0.25; background: var(--accent-color);"></div>
-    <h3 class="text-4 font-ui font-light tracking-widest"
-      style="letter-spacing: 0.25em; opacity: 0.4;"
-    >{subtitle}</h3>
+    <span class="site-title__name-row inline-flex items-center gap-3">
+      <h1 class="site-title__name">{title}</h1>
+      <span class="mini-seal" aria-hidden="true">墨</span>
+    </span>
+    <span class="site-title__rule" aria-hidden="true"></span>
+    <h3 class="site-title__sub">{subtitle}</h3>
   </a>
 </hgroup>

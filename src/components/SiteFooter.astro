@@ -13,10 +13,11 @@ function parseFooter(str: string) {
 }
 ---
 
-{footer.length && footer.map((str) => <p set:html={parseFooter(str)} />)}
-
-<style>
-  p {
-    --at-apply: 'font-bold text-3';
-  }
-</style>
+<!-- Sumi-e 化:.site-footer 容器内 .mini-seal "墨" 落款 + ink-faint 小字。
+     - 移除原 <style> 内的 font-bold(小字 bold 太重),改由 .site-footer p 统一控制
+     - parseFooter 转义保留(%year/%website/%author)
+     - .mini-seal 单独渲在末尾,与 footer 文本并行作为博客 signature stamp -->
+<div class="site-footer">
+  {footer.length && footer.map((str) => <p set:html={parseFooter(str)} />)}
+  <span class="mini-seal site-footer__seal" aria-hidden="true">墨</span>
+</div>

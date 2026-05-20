@@ -644,5 +644,184 @@ html.dark .post-detail article.prose > p:first-of-type::first-letter {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Task 7 — Site frame(站点标题/导航/页脚 sumi 化)
+   1:1 自 showcase .topnav .brand / nav.links (SRC:948-1016) + footer.foot .stamp
+   (SRC:2185-2202)。本段所有选择器以 .site-title / .site-nav / .site-footer
+   高特异性命名,LayoutDefault 的 <header>/<footer> 容器内生效,与 article.prose
+   链接段(Task 5 ⑧)选择器**完全互斥**——无 :where(a) 通配、不进 main 容器。
+
+   ── 节索引 ──
+     ⑦.1  .site-title       站名 + 朱印 + 副标题(SiteTitle.astro)
+     ⑦.2  .site-nav         主链接 + 社交图标(SiteNavigation.astro)
+     ⑦.3  .site-footer      落款文本 + 朱印(SiteFooter.astro)
+     ⑦.4  html.dark         墨夜覆盖(集中放段尾,与 Task 5 ⑫ 一致风格)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── ⑦.1 站点标题:书法体大字 + 朱印签名 ─────────────────────────────────── */
+.site-title a { color: inherit; text-decoration: none; background: none; }
+.site-title .site-title__name-row {
+  /* 名 + 朱印作为一行单元(中文水平阅读) */
+  line-height: 1;
+}
+.site-title .site-title__name {
+  font-family: var(--font-cal);                       /* Ma Shan Zheng 书法体 */
+  font-weight: 400;                                   /* Ma Shan Zheng 仅 400,勿求 500/600 */
+  color: var(--ink-strong);
+  font-size: 2.1rem;                                  /* 显著大字,呼应 SRC hero(此处侧栏故克制于 hero) */
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  margin: 0;
+  /* 标题边缘墨韵毛边(与 article.prose h1-h4 同源,但作用域独立) */
+  filter: url(#ink-bleed);
+}
+.site-title .site-title__rule {
+  display: block;
+  width: 36px;
+  height: 1px;
+  margin: 14px auto;
+  background: var(--ink-hairline);                    /* 淡墨细线,替代原 accent-color 短线 */
+}
+.site-title .site-title__sub {
+  font-family: var(--font-text);
+  font-weight: 300;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  letter-spacing: 0.22em;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ─── ⑦.2 站点导航:笔触下划线 hover 渐展(article.prose 链接段技法,独立作用域) ── */
+.site-nav { font-family: var(--font-text); }
+.site-nav__links { list-style: none; padding: 0; margin: 0; }
+.site-nav__links li { margin: 0; }
+
+.site-nav__link {
+  position: relative;
+  display: inline-block;
+  padding: 6px 4px;
+  font: 500 0.92rem var(--font-text);
+  color: var(--ink-soft);
+  text-decoration: none;
+  background: none;                                   /* 抹掉 UnoCSS attributify 可能的 hover bg */
+  letter-spacing: 0.04em;
+  transition: color .25s ease;
+}
+.site-nav__link::before {
+  content: "";
+  position: absolute;
+  left: 4px; right: 4px;
+  bottom: 0;
+  height: 1px;
+  background: transparent;                            /* 站点导航静止无底线,与正文 a 的 hairline 静止线区别(克制) */
+  pointer-events: none;
+}
+.site-nav__link::after {
+  content: "";
+  position: absolute;
+  left: 4px; bottom: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--ink);
+  filter: url(#ink-bleed);                            /* 毛边墨笔触(同 SRC .field::after) */
+  transition: width .45s cubic-bezier(.3, .7, .2, 1);
+  pointer-events: none;
+}
+.site-nav__link:hover,
+.site-nav__link:focus-visible {
+  color: var(--ink-strong);
+}
+.site-nav__link:hover::after,
+.site-nav__link:focus-visible::after {
+  width: calc(100% - 8px);                            /* 留 padding 内边距,笔触不撞边 */
+}
+.site-nav__link[aria-current="page"] {
+  color: var(--ink-strong);
+}
+.site-nav__link[aria-current="page"]::after {
+  width: calc(100% - 8px);                            /* 当前页常显笔触下划线(SRC:1007-1014) */
+  background: var(--ink);
+}
+
+/* 社交图标:ink-mid → hover seal 朱砂 */
+.site-nav__socials { list-style: none; padding: 0; margin: 0; }
+.site-nav__socials li { margin: 0; }
+.site-nav__social {
+  color: var(--ink-mid);
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  transition: color .25s ease;
+}
+.site-nav__social:hover,
+.site-nav__social:focus-visible {
+  color: var(--seal);
+}
+/* sr-only fallback:i-mdi 图标加载失败时屏幕阅读器仍可读出 social name */
+.site-nav__social .sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ─── ⑦.3 站点页脚:ink-faint 小字 + 朱印落款 ─────────────────────────────── */
+.site-footer {
+  font-family: var(--font-text);
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.site-footer p {
+  margin: 0;
+  font-weight: 400;                                   /* 覆盖原 font-bold;小字 bold 太重 */
+  color: var(--ink-faint);
+}
+.site-footer p a {
+  color: var(--ink-mid);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink-hairline);
+  transition: color .25s ease, border-color .25s ease;
+}
+.site-footer p a:hover,
+.site-footer p a:focus-visible {
+  color: var(--ink-strong);
+  border-bottom-color: var(--ink-mid);
+}
+.site-footer__seal {
+  /* .mini-seal 已是 22×22 sumi 实体(Task 3 既有);此处仅控容器对齐 */
+  margin-top: 4px;
+}
+
+/* ─── ⑦.4 html.dark 墨夜覆盖 ──────────────────────────────────────────────
+   token 已在 :root html.dark 互换(ink-strong/soft/mid/faint/hairline/seal),
+   绝大多数样式自动跟随;此处仅显式收回少数 inherit 易丢失的覆写。 */
+html.dark .site-title .site-title__name { color: var(--ink-strong); }
+html.dark .site-title .site-title__rule { background: var(--ink-hairline); }
+html.dark .site-title .site-title__sub { color: var(--ink-soft); }
+html.dark .site-nav__link { color: var(--ink-soft); }
+html.dark .site-nav__link:hover,
+html.dark .site-nav__link:focus-visible,
+html.dark .site-nav__link[aria-current="page"] { color: var(--ink-strong); }
+html.dark .site-nav__link::after,
+html.dark .site-nav__link[aria-current="page"]::after { background: var(--ink); }
+html.dark .site-nav__social { color: var(--ink-mid); }
+html.dark .site-nav__social:hover,
+html.dark .site-nav__social:focus-visible { color: var(--seal); }
+html.dark .site-footer,
+html.dark .site-footer p { color: var(--ink-faint); }
+html.dark .site-footer p a { color: var(--ink-mid); border-bottom-color: var(--ink-hairline); }
+html.dark .site-footer p a:hover,
+html.dark .site-footer p a:focus-visible { color: var(--ink-strong); border-bottom-color: var(--ink-mid); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
    end Functional skeleton — 后续 Task 追加规则应插在此闭区之前
    ═══════════════════════════════════════════════════════════════════════════ */
