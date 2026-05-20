@@ -70,6 +70,9 @@ export const userConfig: Partial<UserConfig> = {
     googleAnalyticsId: '',
     umamiAnalyticsId: '',
   },
+  seo: {
+    twitter: '@eamanc_',
+  },
   latex: {
     katex: false,
   },

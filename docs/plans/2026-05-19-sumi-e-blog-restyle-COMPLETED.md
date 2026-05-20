@@ -7,7 +7,7 @@
 | **基线 commit** | `3ae4fab` (BASE) |
 | **完成 commit** | Task 13 终验 commit（见下文 commit 链） |
 | **总 Task 数** | 13 个实质 Task + 1 个技术债微修（Task 1.5） |
-| **总 commit 数** | 28 个（含 Task 主 commit + reviewer fix commit + plan 同步 docs commit） |
+| **总 commit 数** | 29 个（含 Task 主 commit + reviewer fix commit + plan 同步 docs commit） |
 | **门禁** | typecheck / build / Playwright 视觉 / 交互 / swup / 健壮 5 项全过 |
 
 ---
@@ -24,7 +24,7 @@
 - Shiki dual theme（github-light + github-dark-dimmed）+ sumi 容器壳
 - swup 跨页：纸纹 / SVG defs / aria-current / char-reveal 全套持久
 
-**1:1 保真锚点：** Task 5 article.prose 与 SRC 模板 byte-equality（md5 `490feea01ab52416593d029d431035de` 跨 `head -n 1937` 锚（BSD/macOS `head` 注意要带 `-n` flag,否则 `1937` 被当作其他参数）），任何后续修改必须先改 SRC 再 head 镜像。
+**1:1 保真锚点：** article.prose lines 1-1937 byte-identical 锚 md5 `490feea01ab52416593d029d431035de`,**锚值实际首现于 `ab89e42`(Task 11 fix commit)** —— Task 5 主 commit 与若干后续 review fix(注释精化/⑪b strong 子节/pointer-events 添加等正当改动)使 md5 漂移,直至 ab89e42 定格;从 ab89e42 到 HEAD `8b0de53` 共 4 commit lines 1-1937 完全 byte-identical(final reviewer 跨 commit md5 链验证)。任何后续修改必须先改 SRC 再 head 镜像(BSD/macOS `head` 注意带 `-n` flag,否则 `1937` 被当作其他参数)。
 
 ---
 
@@ -65,7 +65,7 @@ d3d7209 → ab89e42 → 4d0a6fa → 16e81a5 → <Task 13 commit>
 | **D2** | 字体走 `fonts.googleapis.cn` 国内镜像，多级 fallback 含系统衬线 | `LayoutDefault.astro` `<link>` + `user.ts` `fonts.header/ui` | 自托管 woff2（首屏 LCP 风险）；原 Google CDN（国内不可达） |
 | **D3** | 全站 1:1 全特效（SVG 滤镜 `url(#ink-bleed)` 全套挂在标题/引用/hr/链接/卡片），不为长文性能擅自降级 | `global.css` 全段 | 段落级 ink-bleed 部分关闭以提 fps；选择性挂载 |
 | **D4** | 暗色桥接走 `html.dark` 类名而非 `prefers-color-scheme` 媒体查询 | `LayoutDefault.astro` / `ThemeScript.astro` | 媒体查询自动跟随（不支持用户手切） |
-| **D5** | article.prose 与 SRC 模板 byte-equality（md5 `490feea01ab52416593d029d431035de` 跨 `head -n 1937` 锚（BSD/macOS `head` 注意要带 `-n` flag,否则 `1937` 被当作其他参数）） | `global.css` Task 5 段 | 局部改写为自家 prose 风格 |
+| **D5** | article.prose lines 1-1937 byte-identical(锚 md5 `490feea01ab52416593d029d431035de`,实际定格于 `ab89e42` Task 11 fix;ab89e42 → HEAD `8b0de53` 4 commit 稳定;Task 5 主 commit 因后续 review fix 调整 md5 漂移到 ab89e42 定格) | `global.css` Task 5 段 | 局部改写为自家 prose 风格 |
 | **D6** | 站点框架走 BEM（`.site-title__name` / `.site-nav__link` / `.site-footer__seal`） | `SiteTitle.astro` / `SiteNavigation.astro` / `SiteFooter.astro` | 全局类名 + descendant selector |
 | **D7** | 朱印 signature accent：reading-progress / drop-cap / `.mini-seal` / `.post-category` outline 用 `var(--seal)` 而非 ink | `global.css` 多段 + `LayoutPost.astro` | 全墨色（v1 风格）；多 accent 色 |
 | **D8** | 代码块 Shiki dual theme（github-light + github-dark-dimmed）+ sumi 容器壳（`var(--paper-shade)` 底 + `var(--ink-hairline)` 边 + `url(#ink-bleed)`） | `astro.config.ts` + `global.css` Task 12 段 | 严格单色墨自管色（`css-variables` theme + 自定义 token 表，复杂度高） |

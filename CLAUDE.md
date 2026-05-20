@@ -130,7 +130,7 @@ article.prose 与 SRC 模板 1:1 byte-equality（D5）。关键值：
 **全局 SVG defs**（`LayoutDefault.astro` 顶层 `<svg>`，所有页面共享）：
 - `#ink-bleed` — feTurbulence `0.018 0.022` 2 octaves + feDisplacementMap `scale=14`：标题/卡片边缘墨晕
 - `#ink-bleed-btn` — 同结构 `scale=5`：按钮/chip/toast 弱晕（避免小元素扭曲过强）
-- `#ink-goo` — feGaussianBlur stdDev=6 + feColorMatrix threshold：水波融墨（`.sumi-ring` 多环融合）
+- `#ink-goo` — feGaussianBlur stdDev=6 + feColorMatrix threshold：水波融墨(备未来多环融合用例;当前 `.sumi-ring` 各环独立 `#ink-bleed`/`#ink-bleed-btn` filter,无 `.goo-stage` 包装)
 - `#inkGrad` — `linearGradient` currentColor 0→0.9：留给未来 sparkline（暂无消费者，与 SRC 锚 1:1 保留）
 
 ### 自定义特性表（v2 sumi-e，区别于 SRC 锚 + 区别于 v1）
@@ -158,7 +158,7 @@ article.prose 与 SRC 模板 1:1 byte-equality（D5）。关键值：
 - `.brush-divider` — 笔触分隔线（IntersectionObserver in-view 触发）
 - `.mini-seal` — 朱印落款方块（站点标题 + footer）
 - `.ink-card` — 首页卡片（带 `.wash` 鼠标墨迹 + 字体入场 stagger）
-- `.sumi-ring` — pointerdown 水波环（× 3 多环融合，`#ink-goo` 滤镜合成）
+- `.sumi-ring` — pointerdown 水波环（× 3 多环,各环独立 `#ink-bleed`/`#ink-bleed-btn` filter,无 `.goo-stage` 包装；若未来需 goo 融合可外套 `.goo-stage`）
 - `.ch` — char-reveal 逐字 span（`--i` 索引 stagger 入场）
 - `.post-category` / `.pagination__link` / `.tag-cloud__item` — 朱印 ripple target（pointerdown 生水波）
 
