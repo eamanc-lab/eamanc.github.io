@@ -1942,7 +1942,7 @@ html.dark .about__meta-date { color: var(--ink-soft); }
    Task 12 — 代码块 Shiki 双 theme swap (sumi 单色墨 D8 决策)
    ⑫.0  astro.config.ts  shikiConfig.themes={light:'github-light',dark:'github-dark-dimmed'},
         defaultColor:false  → 不输出绝对 `color`/`background-color`,仅输出
-        `--shiki-light:LIGHT; --shiki-dark:DARK; --shiki-light-bg; --shiki-dark-bg`
+        `--shiki-light:LIGHT; --shiki-dark:DARK; --shiki-light-bg:LIGHT-BG; --shiki-dark-bg:DARK-BG`
         四个 CSS vars(每个 token <span> 与外层 <pre> 同形式注入)。
    ⑫.1  本段(global.css):亮模式 color 读 --shiki-light,html.dark 下 swap 到 --shiki-dark。
    ⑫.2  src/pages/posts/[...id].astro  .clipboard-copy 改 sumi ink color-mix(脱 #30363d)。
