@@ -2007,3 +2007,147 @@ html.dark article.prose pre.astro-code span {
 /* ═══════════════════════════════════════════════════════════════════════════
    end Functional skeleton — 后续 Task 追加规则应插在此闭区之前
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Task v3-A — .topnav + .page-stage + .site-footer-v3
+   SRC 镜像: showcase.html line 948-1039 (.topnav 段全量)
+   新增: .page-stage 居中容器 + .site-footer-v3 简洁页脚
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Top nav ─────────────────────────────────────────────────────────────── */
+
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  margin: 0 0 var(--sp-6);
+  padding: 16px 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  background: color-mix(in oklab, var(--paper) 85%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ink-hairline);
+}
+.topnav .brand {
+  display: flex; align-items: center; gap: 12px;
+}
+.topnav .brand .glyph {
+  width: 32px; height: 32px;
+  background: var(--seal);
+  color: var(--paper);
+  font-family: var(--font-cal);
+  font-size: 20px;
+  display: grid; place-items: center;
+  clip-path: polygon(4% 6%, 96% 0%, 100% 95%, 2% 100%);
+  filter: url(#ink-bleed);
+  line-height: 1;
+  padding-bottom: 1px;
+}
+.topnav .brand .name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink-strong);
+  letter-spacing: 0.02em;
+}
+.topnav .brand .name .sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  margin-left: 6px;
+}
+.topnav .spacer { flex: 1; }
+
+.topnav nav.links {
+  display: flex; gap: 4px;
+  align-items: center;
+}
+.topnav nav.links a {
+  position: relative;
+  padding: 8px 14px;
+  font: 500 13.5px var(--font-text);
+  color: var(--ink-mid);
+  text-decoration: none;
+  transition: color .25s;
+}
+.topnav nav.links a[aria-current="page"] { color: var(--ink-strong); }
+.topnav nav.links a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 14px; right: 14px;
+  bottom: 2px;
+  height: 2px;
+  background: var(--ink);
+  filter: url(#ink-bleed);
+}
+.topnav nav.links a:hover { color: var(--ink-strong); }
+
+.topnav .search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--ink-hairline);
+  border-radius: 2px;
+  cursor: pointer;
+  font: 13px var(--font-text);
+  color: var(--ink-soft);
+  min-width: 220px;
+}
+.topnav .search-trigger:hover { border-color: var(--ink-mid); color: var(--ink-mid); }
+.topnav .search-trigger .kbd {
+  margin-left: auto;
+  font: 500 10.5px var(--font-mono);
+  padding: 1px 6px;
+  background: color-mix(in oklab, var(--paper-shade) 50%, transparent);
+  border: 0.5px solid var(--ink-hairline);
+  border-radius: 3px;
+}
+
+/* mobile <375: 隐藏 search-trigger */
+@media (max-width: 374px) {
+  .topnav .search-trigger { display: none; }
+  .topnav nav.links { gap: 0; }
+}
+
+/* ─── .page-stage 居中容器 ────────────────────────────────────────────────── */
+
+.page-stage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-6) var(--sp-9);
+  position: relative;
+  z-index: 2;
+}
+@media (max-width: 640px) {
+  .page-stage { padding: var(--sp-4) var(--sp-4) var(--sp-7); }
+}
+
+/* ─── .site-footer-v3 简洁页脚 ────────────────────────────────────────────── */
+
+.site-footer-v3 {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sp-5) var(--sp-6) var(--sp-6);
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid var(--ink-hairline);
+  font-family: var(--font-text);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+/* .site-footer-v3 内的 .mini-seal:复用 Task 7 .mini-seal 局部规则,
+   但作用域独立镜像 11 属性,不污染 .site-title__mini-seal 上下文 */
+.site-footer-v3 .mini-seal {
+  width: 22px; height: 22px;
+  background: var(--seal); color: var(--paper);
+  font-family: var(--font-cal); font-size: 14px;
+  display: grid; place-items: center;
+  clip-path: polygon(2% 4%, 96% 0%, 100% 98%, 4% 100%);
+  filter: url(#ink-bleed);
+  flex-shrink: 0;
+}

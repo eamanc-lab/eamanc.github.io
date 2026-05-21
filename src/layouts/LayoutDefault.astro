@@ -1,8 +1,6 @@
 ---
 import { themeConfig } from '~/.config'
-import SiteFooter from '~/components/SiteFooter.astro'
-import SiteNavigation from '~/components/SiteNavigation.astro'
-import SiteTitle from '~/components/SiteTitle.astro'
+import TopNav from '~/components/TopNav.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LaTeX from '~/components/LaTeX.astro'
 import Analytics from '~/components/Analytics.astro'
@@ -23,29 +21,19 @@ const dark = themeConfig.appearance.theme === 'dark'
     <ThemeScript />
   </head>
 
-  <body
-    class="h-100vh max-w-1200px min-w-390px mx-a"
-    p="7.5 lg:(y-0 x-20)"
-    lg="grid gap-x-6 cols-[3fr_1fr] rows-[1fr_9rem]"
-  >
+  <body>
     <SumiBackground />
     <SumiFilters />
 
-    <header
-      class="transition-swup-header flex flex-col gap-2.5"
-      m="7.5 lg:(x-0 t-20 b-4)"
-      lg="row-1-2 col-2-3 justify-between items-start"
-    >
-      <SiteTitle />
-      <SiteNavigation />
-    </header>
+    <TopNav />
 
-    <main class="transition-swup-main overflow-y-scroll scrollbar-hide outline-none" lg="row-1-3 col-1-2 py-20 ">
+    <main class="page-stage transition-swup-main" id="swup-main">
       <slot />
     </main>
 
-    <footer class="transition-swup-footer py-7.5" lg="row-2-3 col-2-3">
-      <SiteFooter />
+    <footer class="site-footer-v3">
+      <span class="site-footer__copy">© {new Date().getFullYear()} Eaman · 雾散之前</span>
+      <span class="mini-seal" aria-hidden="true">墨</span>
     </footer>
 
     <script>

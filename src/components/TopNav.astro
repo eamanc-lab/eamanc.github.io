@@ -1,0 +1,43 @@
+---
+import { themeConfig } from '~/.config'
+import { withBase } from '~/utils'
+
+const { navLinks } = themeConfig.site
+const baseStripped = (p: string) => {
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+  return p.startsWith(base) ? (p.slice(base.length) || '/') : p
+}
+const rawPath = Astro.url.pathname.replace(/\/$/, '') || '/'
+const currentPath = baseStripped(rawPath)
+const isCurrent = (href: string) => {
+  const target = baseStripped(href.replace(/\/$/, '') || '/')
+  return target === currentPath || (target !== '/' && currentPath.startsWith(target))
+}
+---
+
+<header class="topnav">
+  <a class="topnav__brand brand" href={withBase('/')}>
+    <span class="glyph" aria-hidden="true">墨</span>
+    <span class="name">雾散之前 <span class="sub">FROM-MIST</span></span>
+  </a>
+  <div class="spacer"></div>
+  <nav class="links" aria-label="主导航">
+    {navLinks.map((nav) => {
+      const href = withBase(nav.href)
+      const current = isCurrent(href)
+      return (
+        <a href={href} aria-current={current ? 'page' : undefined}>
+          {nav.name}
+        </a>
+      )
+    })}
+  </nav>
+  <button class="search-trigger" disabled title="搜索(暂未启用)" type="button">
+    <svg viewBox="0 0 14 14" width="14" height="14" fill="none" aria-hidden="true">
+      <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/>
+      <path d="m9.5 9.5 3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    <span>搜索文章 …</span>
+    <span class="kbd">⌘ K</span>
+  </button>
+</header>
