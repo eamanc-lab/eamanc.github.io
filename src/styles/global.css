@@ -2473,3 +2473,77 @@ html.dark .hero .bg-char { opacity: 0.08; }
   grid-template-columns: minmax(320px, 560px);
   justify-content: center;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⒎ v3-E — 首页 sections + chip-row + .page-section
+
+   page-section: 每个 hero 之下的内容区分隔(margin-block + 内部子项节奏)
+   chip-row: 承·分类 行排 chip(SRC .chip Task v3-F 留给后续 — 此处先用既有
+     .post-category 风,或先 inline 简化 .chip 样式)
+   page-section__about-text / __about-cta: 转·关于 段独立样式
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.page-section {
+  margin-block: var(--sp-7) var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.page-section:first-of-type { margin-top: var(--sp-5); }
+
+/* chip 行(简化版 .chip,SRC 完整 chip 段留给 Task v3-F 后续接入) */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.chip-row .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 0;
+  font: 500 13px var(--font-text);
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: 2px;
+  position: relative;
+  isolation: isolate;
+  transition: color .25s;
+}
+.chip-row .chip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1px solid var(--ink);
+  background: transparent;
+  filter: url(#ink-bleed-btn);
+}
+.chip-row .chip.seal { color: var(--seal); }
+.chip-row .chip.seal::before { border-color: var(--seal); }
+.chip-row .chip:hover { color: var(--ink-strong); }
+.chip-row .chip.seal:hover { color: var(--seal-deep); }
+.chip-row .chip .chip-count {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  opacity: 0.85;
+}
+
+/* 转·关于 段独立(避免污染 page-section 通用) */
+.page-section__about-text {
+  font-family: var(--font-text);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  max-width: 640px;
+  margin: 0;
+}
+.page-section__about-cta {
+  display: flex;
+  gap: 12px;
+}

@@ -1,12 +1,12 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
 import { themeConfig } from '~/.config'
+import Hero from '~/components/Hero.astro'
+import SectionHead from '~/components/SectionHead.astro'
+import PostCard from '~/components/PostCard.astro'
 import Pagination from '~/components/Pagination.astro'
-import PostMeta from '~/components/PostMeta.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import { getPostDescription, getPosts } from '~/utils'
-
-const { translate: t } = Astro.locals
+import { getCategories, getPathFromCategory, getPosts, withBase } from '~/utils'
 
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getPosts()
@@ -21,42 +21,103 @@ export const getStaticPaths = (async ({ paginate }) => {
 type Props = InferGetStaticPropsType<typeof getStaticPaths>
 
 const { page } = Astro.props
+const { translate: t } = Astro.locals
+
+// 拿全分类(为承·分类 chip 行)
+const categoryMap = await getCategories()
+const categoryEntries = Array.from(categoryMap).map(([key, value]) => ({
+  name: key,
+  path: withBase(`/categories/${getPathFromCategory(key, themeConfig.site.categoryMap)}`),
+  count: value.length,
+}))
+
+const isFirstPage = page.currentPage === 1
 ---
 
-{/*
-  Task 9 — 列表/详情职责分离(Path B):
-    · 首页/分页列表绕过 LayoutPost(LayoutPost 含 reading-progress + article.prose,
-      为文章详情页设计;列表场景复用会引发 N 个重复 id="reading-progress"、
-      N 个 scroll listener、article.prose 行宽 65ch 与卡片宽度冲突等语义瑕疵)。
-    · 直接在此渲染 <article class="ink-card layered">…</article>,文章详情页
-      (src/pages/posts/[...id].astro)仍走 LayoutPost——LayoutPost.astro 本身
-      未被改动(Task 9 边界要求)。
-    · .ink-card .wash 是 SRC:514-541 鼠标墨迹钩子。Task 11 接入前 hover 时
-      wash opacity 已变 1 但渐变中心固定于卡片中心(50%/50%,沿用 :root 初值);
-      Task 11 swup `page:view` hook 接 querySelectorAll('.ink-card') 设
-      --mx/--my 后墨迹随鼠标流动。本 Task 仅准备 DOM 与 CSS 钩子,不写 JS。
-*/}
-
 <LayoutDefault>
-  <section class="posts-list" contain-layout flex="~ col gap-7.5">
-    {
-      page.data.map((post) => (
-        <article class="ink-card layered">
-          <div class="wash" aria-hidden="true"></div>
-          <PostMeta post={post} />
-          <p class="line-clamp-4">{getPostDescription(post)}</p>
-        </article>
-      ))
-    }
+  {isFirstPage && (
+    <Hero
+      eyebrow={{ seal: '砚', label: 'Sumi-e · v3 · 二〇二六' }}
+      title="雾散之前"
+      sub="一份个人博客 — 用普通人的语言,把 AI 解析给非技术读者。慢思考,克制写,水墨气。"
+      cta={[
+        { label: '开始阅读 →', href: '/archive', variant: 'primary' },
+        { label: '关于我', href: '/about', variant: 'outline' },
+      ]}
+      marquee={['AI 解析', '中文写作', '克制设计', '慢思考']}
+      bgChar="墨"
+    />
+  )}
+
+  {!isFirstPage && (
+    <Hero
+      compact
+      eyebrow={{ seal: '页', label: `第 ${page.currentPage} 页 · 近作` }}
+      title="近作"
+      bgChar="起"
+    />
+  )}
+
+  {/* ⒈ 起·近作 — PostCard grid-3 */}
+  <section class="page-section">
+    <SectionHead
+      eyebrow={{ cal: '起', label: '01 / Recent' }}
+      title="近作"
+      sub="最近的几篇文章。"
+    />
+    <div class="grid-3 post-grid">
+      {page.data.map((post) => (
+        <PostCard post={post} />
+      ))}
+    </div>
+    <Pagination
+      showLeft={Boolean(page.url.prev)}
+      leftTitle={t('prev')}
+      leftUrl={page.url.prev}
+      showRight={Boolean(page.url.next)}
+      rightTitle={t('next')}
+      rightUrl={page.url.next}
+      currentPage={page.currentPage}
+      totalPage={page.lastPage}
+    />
   </section>
-  <Pagination
-    showLeft={Boolean(page.url.prev)}
-    leftTitle={t('prev')}
-    leftUrl={page.url.prev}
-    showRight={Boolean(page.url.next)}
-    rightTitle={t('next')}
-    rightUrl={page.url.next}
-    currentPage={page.currentPage}
-    totalPage={page.lastPage}
-  />
+
+  {/* ⒉ 承·分类 — chip 行 */}
+  {isFirstPage && categoryEntries.length > 0 && (
+    <section class="page-section">
+      <SectionHead
+        eyebrow={{ cal: '承', label: '02 / Categories' }}
+        title="分类"
+        sub="按主题聚合的写作脉络。"
+      />
+      <div class="chip-row">
+        {categoryEntries.map((cat) => (
+          <a class="chip seal" href={cat.path}>
+            <span>{cat.name}</span>
+            <span class="chip-count">{cat.count}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {/* ⒊ 转·关于 — 简介 + 跳转 */}
+  {isFirstPage && (
+    <section class="page-section">
+      <SectionHead
+        eyebrow={{ cal: '转', label: '03 / About' }}
+        title="关于"
+        sub="一个 AI 应用探索的工程师 — Eaman。"
+      />
+      <p class="page-section__about-text">
+        我们正处在一场大雾中。AI 每天都在改变规则,没人能看清全貌。
+        这个博客是我在雾中的记录 —— 看到了什么就写什么,尽量写得深一点、客观一点。
+      </p>
+      <div class="page-section__about-cta">
+        <a class="btn outline" href={withBase('/about')}>
+          <span>了解更多 →</span>
+        </a>
+      </div>
+    </section>
+  )}
 </LayoutDefault>
