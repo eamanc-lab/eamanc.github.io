@@ -326,24 +326,26 @@ function initCharReveal(): void {
 }
 
 /* ─── ⑤ initAriaCurrent ───────────────────────────────────────────────────
-   挂载选择器:`.site-nav__link`
+   挂载选择器:`.topnav nav.links a`(TopNav v3 笔触下划线激活态)
    ----------------------------------------------------------------------------
-   等待 Task 7(global.css:828-842 / SiteNavigation.astro)`.site-nav__link[aria-current="page"]`
-   朱印激活态的 JS 接入。SSR 注入 aria-current 会被 swup `updateBodyClass + 软切换`
-   破坏(header 持久不更换 DOM,但 URL 切换后 SSR 标记已成"过去");Task 7
-   注释("Task 11 须用 JS 注入")即此意。
+   SSR 注入 aria-current 会被 swup 软切换破坏(header 持久不更换 DOM,但 URL
+   切换后 SSR 标记已成"过去");每次 `astro:page-load` 触发时重新标记。
+   global.css `.topnav nav.links a[aria-current="page"]::after` 段负责视觉。
 
    实现:每次 `astro:page-load` 触发时:
      1. 取当前 location.pathname 并归一化(去尾斜杠,以根 '/' 兜底)
-     2. 遍历所有 .site-nav__link,比较 href.pathname 与当前 pathname
-     3. 匹配则 setAttribute('aria-current', 'page'),其它 removeAttribute
-   - 归一化:link.href 是绝对 URL(浏览器解析),提取 .pathname 与
-     window.location.pathname 比较;尾斜杠统一去掉再比(astro 生成的 link
-     有/无尾斜杠不一致)。
+     2. 遍历所有 .topnav nav.links a,比较 href.pathname 与当前 pathname
+     3. 完全相等 → 高亮;非根 link 且 currentPath 以其 path 开头 → 子路径高亮
+        (如 /posts/foo 算"文章"高亮;根 link 不做前缀匹配,否则任何页都高亮首页)
+     4. 匹配则 setAttribute('aria-current', 'page'),其它 removeAttribute
+   - 归一化:link.href 是浏览器解析的绝对 URL,提取 .pathname;base subpath
+     在浏览器侧两边统一携带,直接比较即可,无需额外 strip。
+   - "根 link"基线:取所有 link 中最短 pathname 长度;只有长度更长的 link 才
+     做子路径前缀匹配,与 TopNav.astro SSR isCurrent() 同语义。
    - 幂等性 by nature:每次都先清后设,无累积副作用。
    - reduce-motion 不影响(无动画,纯属性)。 */
 function initAriaCurrent(): void {
-  const links = document.querySelectorAll<HTMLAnchorElement>('.site-nav__link')
+  const links = document.querySelectorAll<HTMLAnchorElement>('.topnav nav.links a')
   if (links.length === 0)
     return
 
@@ -354,10 +356,18 @@ function initAriaCurrent(): void {
   }
   const currentPath = stripSlash(window.location.pathname)
 
+  // 取所有 link 中最短 pathname 长度,作"首页/根 link"基线
+  const shortestLen = Math.min(
+    ...Array.from(links).map((l) => {
+      try { return stripSlash(new URL(l.href).pathname).length }
+      catch { return Infinity }
+    }),
+  )
+
   links.forEach((link) => {
     let linkPath: string
     try {
-      // link.href 是浏览器解析的绝对 URL,直接取 .pathname
+      // 浏览器解析 link.href 已含 base subpath,直接取 .pathname
       linkPath = stripSlash(new URL(link.href).pathname)
     }
     catch {
@@ -365,7 +375,15 @@ function initAriaCurrent(): void {
       linkPath = stripSlash(link.getAttribute('href') ?? '')
     }
 
-    if (linkPath === currentPath)
+    // 与 TopNav.astro SSR 的 isCurrent() 同语义:
+    //   完全相等 → 当前页
+    //   非根 link(length > shortestLen) 且 currentPath 以 link path 为前缀 → 子路径段高亮
+    let isMatch = linkPath === currentPath
+    if (!isMatch && linkPath.length > shortestLen) {
+      isMatch = currentPath.startsWith(`${linkPath}/`) || currentPath === linkPath
+    }
+
+    if (isMatch)
       link.setAttribute('aria-current', 'page')
     else
       link.removeAttribute('aria-current')
