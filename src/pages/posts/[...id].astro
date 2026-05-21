@@ -1,11 +1,13 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
 import Comments from '~/components/Comments.astro'
+import Hero from '~/components/Hero.astro'
 import Pagination from '~/components/Pagination.astro'
+import PostCategory from '~/components/PostCategory.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import LayoutPost from '~/layouts/LayoutPost.astro'
-import { getPosts } from '~/utils'
+import { formatDate, getPosts, withBase } from '~/utils'
 import { render } from 'astro:content'
 
 export const getStaticPaths = (async () => {
@@ -28,14 +30,50 @@ const { Content } = await render(entry)
 const { translate: t } = Astro.locals
 
 function getUrl(id: string) {
-  return `/posts/${id}`
+  return withBase(`/posts/${id}`)
 }
+
+// Hero 首字 — Array.from 正确处理 surrogate pair 中文(如"你好"→"你")
+const titleChars = Array.from(entry.data.title)
+const firstChar = titleChars[0] ?? '文'
+
+const categories = entry.data.categories ?? []
+const tags = entry.data.tags ?? []
+const dateStr = formatDate(entry.data.modDate ?? entry.data.pubDate)
+const dateLabel = entry.data.modDate ? t('updated_at') : t('posted_at')
 ---
 
 <LayoutDefault>
   <SiteSeo slot="seo" title={entry.data.title} desc={entry.data.description} banner={entry.data.banner} />
 
+  {/* Task 8 — 文章详情 hero:文章标题升 hero 字阶,bg-char 取首字
+       PostMeta 不再在 prose 内部(LayoutPost 已删该引用),date/cats/tags 行作为
+       hero 下方的 .post-detail__meta 独立呈现。 */}
+  <Hero
+    eyebrow={{ seal: '文', label: `Post · ${dateStr}` }}
+    title={entry.data.title}
+    sub={entry.data.description}
+    bgChar={firstChar}
+  />
+
   <div class="post-detail">
+    <div class="post-detail__meta">
+      <span class="post-detail__meta-label">{dateLabel}</span>
+      <time class="post-detail__date">{dateStr}</time>
+      {categories.length > 0 && (
+        <span class="post-detail__cats">
+          {categories.map((c: string) => <PostCategory category={c} />)}
+        </span>
+      )}
+      {tags.length > 0 && (
+        <span class="post-detail__tags">
+          {tags.map((tag: string) => (
+            <a class="post-tag not-underline-hover" href={withBase(`/tags/${tag}`)}>#{tag}</a>
+          ))}
+        </span>
+      )}
+    </div>
+
     <LayoutPost post={entry}>
       <Content />
     </LayoutPost>

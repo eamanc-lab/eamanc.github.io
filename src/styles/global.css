@@ -2551,3 +2551,41 @@ html.dark .hero .bg-char { opacity: 0.08; }
   display: flex;
   gap: 12px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⒏ v3-G — 文章详情 hero meta 行(.post-detail__meta)
+
+   .post-detail__meta 是 Task 8 把 PostMeta 从 article.prose 内部移出来后的
+   独立 meta 行,呈现在 Hero 下方 + article.prose 上方:
+     [发布于] [日期] [分类 chip] [#tag #tag]
+   既有 PostMeta.astro 仍可被 LayoutPost 调用或其他地方复用,但本 Task 不再
+   在 prose 内部渲染它 — 改为本独立 meta 行,样式独立。
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.post-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: var(--sp-4) 0 var(--sp-6);
+  font-family: var(--font-text);
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.post-detail__meta-label {
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.post-detail__date {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--ink-mid);
+}
+.post-detail__cats,
+.post-detail__tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}

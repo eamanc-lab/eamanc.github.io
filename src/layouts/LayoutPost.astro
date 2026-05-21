@@ -1,18 +1,16 @@
 ---
-import PostMeta from '~/components/PostMeta.astro'
 import type { Post } from '~/types'
 
 interface Props {
   post: Post
 }
 
-const { post } = Astro.props
+const { post: _post } = Astro.props
 ---
 
 <div class="reading-progress" id="reading-progress"></div>
 
 <article class="prose">
-  <PostMeta post={post} />
   <slot />
 </article>
 
