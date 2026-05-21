@@ -2156,3 +2156,161 @@ html.dark article.prose pre.astro-code span {
   filter: url(#ink-bleed);
   flex-shrink: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⒋ v3-B — Hero (.hero / .bg-char)
+
+   1:1 镜像 SRC sumi-e showcase line 1043-1166,唯一非 byte-equal 之处:
+     SRC `.hero h1 .char` / `.hero h1 .char.in` / `.hero h1 .char.bleed::after`
+     →  本仓库改写为 `.hero h1 .ch` / `.hero h1 .ch.in` / `.hero h1 .ch.bleed::after`
+     原因:博客 v2 sumi.ts initCharReveal 已用 `.ch` 类约定(更简短,Task 11
+     落定),为避免引入与既有 sumi.ts 冲突的第二套钩子,Hero SSR 也用 `.ch`。
+     语义/属性/keyframe 全部一致,仅类名换码。
+
+   @keyframes 名: SRC 原名 `char-reveal` / `char-underline` 已在 global.css
+     line 1864 / Task 11 段中定义(`.ch` article.prose 首字下沉入场),直接复用
+     会导致 animation 名冲突(两处 @keyframes 同名,后者覆盖前者曲线参数)。
+     因此改写为 `hero-char-reveal` / `hero-char-underline` 命名空间隔离。
+     Hero 自用 easing cubic-bezier(.2,.7,.2,1) 与 Task 11 段 ease-out 不同,
+     必须隔离才能各自保真。
+
+   `.hero--compact` 是博客专属扩展(SRC 无此变体),用于文章页 hero 化(Task 8)。
+
+   :root[data-mode="night"] → 同 D4 决策桥接为 `html.dark`,并行双写以兼容
+     SRC inline runtime data-mode 切换(若未来 dual-source 部署不破)。
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding: var(--sp-8) 0 var(--sp-7);
+  min-height: 72vh;
+  justify-content: center;
+  position: relative;
+}
+
+.hero--compact {
+  min-height: 36vh;
+  padding: var(--sp-6) 0 var(--sp-5);
+}
+
+.hero .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  width: fit-content;
+}
+.hero .eyebrow .seal-mini {
+  display: inline-grid; place-items: center;
+  width: 18px; height: 18px;
+  background: var(--seal);
+  color: var(--paper);
+  font-family: var(--font-cal);
+  font-size: 12px;
+  clip-path: polygon(2% 8%, 96% 0%, 100% 96%, 4% 100%);
+  filter: url(#ink-bleed);
+  line-height: 1;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 7.6vw, 104px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  margin: 0;
+  color: var(--ink-strong);
+  max-width: 13ch;
+  text-wrap: balance;
+}
+.hero--compact h1 {
+  font-size: clamp(36px, 4vw, 64px);
+  line-height: 1.1;
+}
+
+.hero h1 .ch {
+  display: inline-block;
+  position: relative;
+  opacity: 0;
+  transform: translateY(8px);
+}
+.hero h1 .ch.in {
+  animation: hero-char-reveal .6s cubic-bezier(.2,.7,.2,1) forwards;
+}
+@keyframes hero-char-reveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero h1 .ch.bleed::after {
+  content: "";
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 0.06em;
+  height: 0.08em;
+  background: var(--ink);
+  filter: url(#ink-bleed);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.hero h1 .ch.bleed.in::after {
+  animation: hero-char-underline .55s cubic-bezier(.2,.7,.2,1) forwards;
+}
+@keyframes hero-char-underline {
+  to { transform: scaleX(1); }
+}
+
+.hero h1 em {
+  font-family: var(--font-latin);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--seal);
+  margin-right: 0.05em;
+}
+
+.hero p.sub {
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--ink-mid);
+  max-width: 540px;
+  margin: 0;
+}
+
+.hero .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.hero .marquee {
+  display: flex; gap: 14px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin-top: var(--sp-3);
+}
+.hero .marquee .sep { opacity: 0.4; }
+
+/* 巨型背景"墨"字 */
+.hero .bg-char {
+  position: absolute;
+  right: -2vw;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-cal);
+  font-size: clamp(280px, 38vw, 540px);
+  line-height: 1;
+  color: var(--ink);
+  opacity: 0.045;
+  pointer-events: none;
+  z-index: 0;
+  filter: url(#ink-bleed);
+  user-select: none;
+}
+:root[data-mode="night"] .hero .bg-char,
+html.dark .hero .bg-char { opacity: 0.08; }
+
+.hero > * { position: relative; z-index: 1; }

@@ -1,0 +1,91 @@
+---
+import { withBase } from '~/utils'
+
+interface CtaItem {
+  label: string
+  href: string
+  variant?: 'primary' | 'seal' | 'outline'
+}
+interface Eyebrow {
+  seal?: string   // 朱印迷你方,如 '砚' / '墨'
+  label: string   // 主标签文字,如 '雾散之前 · 二〇二六'
+}
+
+interface Props {
+  eyebrow?: Eyebrow
+  title: string
+  titleAccent?: string   // 嵌入 <em> 斜体片段(SRC 用 `让思想<em>在纸上</em>洇开。`)
+  sub?: string
+  cta?: CtaItem[]
+  marquee?: string[]
+  bgChar?: string
+  compact?: boolean
+}
+
+const {
+  eyebrow,
+  title,
+  titleAccent,
+  sub,
+  cta = [],
+  marquee = [],
+  bgChar,
+  compact = false,
+} = Astro.props
+
+// SSR:把 title 拆 char(支持 surrogate pair 的中文用 Array.from)
+const titleChars = Array.from(title)
+const cssClass = compact ? 'hero hero--compact' : 'hero'
+
+// CTA href 一律走 withBase
+const ctaWithBase = cta.map(c => ({ ...c, href: withBase(c.href) }))
+---
+
+<section class={cssClass} data-sumi-init="hero">
+  {bgChar && <span class="bg-char" aria-hidden="true">{bgChar}</span>}
+
+  {eyebrow && (
+    <div class="eyebrow">
+      {eyebrow.seal && <span class="seal-mini">{eyebrow.seal}</span>}
+      <span>{eyebrow.label}</span>
+    </div>
+  )}
+
+  <h1>
+    {titleChars.map((ch, i) => (
+      <span class="ch" style={`--i:${i}`}>{ch}</span>
+    ))}
+    {titleAccent && (
+      <em>{titleAccent}</em>
+    )}
+  </h1>
+
+  {sub && <p class="sub">{sub}</p>}
+
+  {ctaWithBase.length > 0 && (
+    <div class="cta">
+      {ctaWithBase.map((c) => {
+        const variantClass =
+          c.variant === 'seal' ? 'btn seal'
+          : c.variant === 'outline' ? 'btn outline'
+          : 'btn'
+        return (
+          <a class={variantClass} href={c.href}>
+            <span>{c.label}</span>
+          </a>
+        )
+      })}
+    </div>
+  )}
+
+  {marquee.length > 0 && (
+    <div class="marquee">
+      {marquee.map((m, i) => (
+        <>
+          {i > 0 && <span class="sep">·</span>}
+          <span>{m}</span>
+        </>
+      ))}
+    </div>
+  )}
+</section>
