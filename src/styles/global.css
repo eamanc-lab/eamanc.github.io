@@ -944,7 +944,13 @@ html.dark .site-footer p a:focus-visible { color: var(--ink-strong); border-bott
   letter-spacing: -0.01em;
   margin: 0;
   text-wrap: balance;
-  filter: url(#ink-bleed);                              /* 标题边缘墨韵(与 article.prose h1 同源) */
+  /* 后验调整(2026-05-21):中文衬线大字(2.1rem)挂 `url(#ink-bleed)`(feDisplacementMap
+     scale=14)位移过强,横竖结构正的中文笔画被撕扯出明显"歪斜感"(用户验收反馈)。
+     改用 `url(#ink-bleed-btn)`(scale=5,SRC 原本为按钮/chip/toast 等小元素设计的弱晕
+     档位),保留墨韵毛边但克制扭曲。详情页 + 首页卡片标题视觉一致。
+     `article.prose` 段标题(h2/h3/...)与 `.ink-card` 容器边缘仍用 `#ink-bleed`(D3
+     全特效不退)——本调整作用域仅限 .post-meta__title 本身。 */
+  filter: url(#ink-bleed-btn);
 }
 .post-meta .post-meta__title a {
   color: inherit;

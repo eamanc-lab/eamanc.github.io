@@ -2,6 +2,7 @@
 import { SEO, type SEOProps } from 'astro-seo'
 import { getImage } from 'astro:assets'
 import { themeConfig } from '~/.config'
+import { withBase } from '~/utils'
 
 interface Props {
   title?: string
@@ -18,11 +19,12 @@ const title = props.title ?? configSite.title
 const desc = props.desc ?? configSite.description
 const canonical = configSite.website
 const twitter = configSEO.twitter
-const rss = new URL('/atom.xml', Astro.site).toString()
+// `Astro.site` = host-only(astro.config.ts 决策);RSS/og 等绝对 URL 须自行拼 base 子路径。
+const rss = new URL(withBase('/atom.xml'), Astro.site).toString()
 const optimizedImage = await getOptimizedImageURL()
 
 const seoLinks = [
-  { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+  { rel: 'icon', href: withBase('/favicon.svg'), type: 'image/svg+xml' },
   {
     rel: 'alternate',
     type: 'application/rss+xml',
@@ -56,7 +58,8 @@ const openGraph: SEOProps['openGraph'] = {
 
 async function getOptimizedImageURL() {
   const image = props.banner && (await getImage({ src: props.banner, format: 'jpeg' }))
-  return new URL(image?.src ?? '/placeholder.png', Astro.url).toString()
+  // `getImage` 返回的 src 已含 base(走 Astro Asset pipeline);静态 fallback 需手动拼。
+  return new URL(image?.src ?? withBase('/placeholder.png'), Astro.url).toString()
 }
 ---
 

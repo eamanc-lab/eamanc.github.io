@@ -1,5 +1,6 @@
 ---
 import { themeConfig } from '~/.config'
+import { withBase } from '~/utils'
 
 const { title, subtitle } = themeConfig.site
 ---
@@ -18,7 +19,7 @@ const { title, subtitle } = themeConfig.site
 >
   <a
     class="not-underline-hover group inline-flex flex-col items-center"
-    href="/"
+    href={withBase('/')}
   >
     <span class="site-title__name-row inline-flex items-center gap-3">
       <h1 class="site-title__name">{title}</h1>

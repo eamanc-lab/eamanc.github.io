@@ -1,6 +1,6 @@
 ---
 import type { Post } from '~/types'
-import { formatDate } from '~/utils'
+import { formatDate, withBase } from '~/utils'
 import PostCategory from './PostCategory.astro'
 
 interface Props {
@@ -16,7 +16,7 @@ const tags = post.data.tags ?? []
 
 <header class="post-meta" flex="~ col gap-2">
   <h1 class="post-title post-meta__title">
-    <a class="not-prose" href={`/posts/${post.id}/`}>{post.data.title}</a>
+    <a class="not-prose" href={withBase(`/posts/${post.id}/`)}>{post.data.title}</a>
   </h1>
   <div class="post-meta__row text-3.5">
     <span class="post-meta__label">{t(post.data.modDate ? 'updated_at' : 'posted_at')}</span>
@@ -29,7 +29,7 @@ const tags = post.data.tags ?? []
     {tags.length > 0 && (
       <span class="post-meta__tags post-tags-inline">
         {tags.map((tag: string) => (
-          <a class="post-tag not-underline-hover" href={`/tags/${tag}`}>#{tag}</a>
+          <a class="post-tag not-underline-hover" href={withBase(`/tags/${tag}`)}>#{tag}</a>
         ))}
       </span>
     )}

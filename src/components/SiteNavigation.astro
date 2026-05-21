@@ -1,5 +1,6 @@
 ---
 import { themeConfig } from '~/.config'
+import { withBase } from '~/utils'
 
 const { navLinks, socialLinks } = themeConfig.site
 const { translate: t } = Astro.locals
@@ -16,7 +17,7 @@ const { translate: t } = Astro.locals
     {
       navLinks.map((nav) => (
         <li>
-          <a class="site-nav__link" href={nav.href}>
+          <a class="site-nav__link" href={withBase(nav.href)}>
             {t(nav.name)}
           </a>
         </li>
