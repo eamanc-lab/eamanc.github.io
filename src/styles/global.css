@@ -2379,3 +2379,97 @@ html.dark .hero .bg-char { opacity: 0.08; }
   line-height: 1.65;
   max-width: 640px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⒍ v3-D — PostCard 子选择器 + .grid-3 / .grid-2 容器
+
+   补充 SRC sumi-e showcase .ink-card 段(line 1213-1248)中博客 v2 未实现的
+   子选择器(h3/p/.head/.cal-num/.foot)。.ink-card 基础规则保留在 line
+   1286-1322 不动;.layered/html.dark/.wash/.posts-list 全部既有规则保留。
+
+   PostCard 用 .post-card class 作为额外语义钩子(BEM 后缀 __title/__desc/
+   __date/__cats/__tags 在 .ink-card 内部作子节点),与 .ink-card 解耦:
+   未来若有非 post 用例的 ink-card(如分类卡 / 通用 widget),可不挂 .post-card。
+
+   .grid-3 / .grid-2 镜像 SRC line 340-346,无改动。
+   .post-card__desc 用 line-clamp-3 限制描述高度(SRC 没有此约束,但博客文章
+   描述可能长,溢出会破坏 grid 视觉对齐 — 这是博客对 SRC 的扩展)。
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* SRC .ink-card 子选择器补充 (SRC line 1213-1248) */
+.ink-card h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: -0.005em;
+  color: var(--ink-strong);
+}
+.ink-card p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink-mid);
+}
+
+.ink-card .head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px;
+}
+.ink-card .head .cal-num {
+  font-family: var(--font-cal);
+  font-size: 32px;
+  line-height: 1;
+  color: var(--seal);
+  flex-shrink: 0;
+}
+
+.ink-card .foot {
+  margin-top: auto;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* PostCard 子节点扩展(博客侧) */
+.post-card .post-card__title { font-family: var(--font-display); font-size: 1.18rem; line-height: 1.3; margin: 0; }
+.post-card .post-card__title a { color: var(--ink-strong); text-decoration: none; }
+.post-card .post-card__title a:hover { color: var(--ink); }
+.post-card .post-card__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.post-card .post-card__cats,
+.post-card .post-card__tags {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.post-card .post-card__tag-more {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+}
+
+/* SRC .grid-3 / .grid-2 (SRC line 340-346) */
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); }
+@media (max-width: 900px) {
+  .grid-3, .grid-2 { grid-template-columns: 1fr; }
+}
+/* 当 grid 内只有 1 个孩子时,降级到居中单卡(避免 grid 拉满)*/
+.grid-3:has(> :only-child),
+.grid-2:has(> :only-child) {
+  grid-template-columns: minmax(320px, 560px);
+  justify-content: center;
+}

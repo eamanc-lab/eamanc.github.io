@@ -1,0 +1,54 @@
+---
+import type { Post } from '~/types'
+import { formatDate, getPostDescription, withBase } from '~/utils'
+import PostCategory from './PostCategory.astro'
+
+interface Props {
+  post: Post
+  index?: number      // 列表序号,影响 .cal-num 显示(可选,首页前 N 篇显示)
+  showCalNum?: boolean // 是否在卡片右上角显示朱印数字
+}
+
+const { post, index, showCalNum = false } = Astro.props
+const categoryList = post.data.categories ?? []
+const tags = post.data.tags ?? []
+const href = withBase(`/posts/${post.id}/`)
+const date = formatDate(post.data.pubDate)
+const description = getPostDescription(post)
+
+// 朱印数字(用甲乙丙丁 → 廿一/廿二 风,SRC 用 .cal-num 显示如 廿一)
+// 这里简化为 01/02/03... 后续可配置
+const calNum = showCalNum && typeof index === 'number'
+  ? String(index + 1).padStart(2, '0')
+  : null
+---
+
+<article class="ink-card layered post-card" data-sumi-init="postcard">
+  <div class="wash" aria-hidden="true"></div>
+
+  <div class="head">
+    <h3 class="post-card__title">
+      <a href={href}>{post.data.title}</a>
+    </h3>
+    {calNum && <span class="cal-num" aria-hidden="true">{calNum}</span>}
+  </div>
+
+  <p class="post-card__desc">{description}</p>
+
+  <div class="foot">
+    <time class="post-card__date">{date}</time>
+    {categoryList.length > 0 && (
+      <span class="post-card__cats">
+        {categoryList.map((category) => <PostCategory category={category} />)}
+      </span>
+    )}
+    {tags.length > 0 && (
+      <span class="post-card__tags">
+        {tags.slice(0, 3).map((tag: string) => (
+          <a class="post-tag not-underline-hover" href={withBase(`/tags/${tag}`)}>#{tag}</a>
+        ))}
+        {tags.length > 3 && <span class="post-card__tag-more">+{tags.length - 3}</span>}
+      </span>
+    )}
+  </div>
+</article>
