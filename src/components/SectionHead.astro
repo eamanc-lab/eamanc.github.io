@@ -1,0 +1,27 @@
+---
+interface Eyebrow {
+  cal: string    // 朱印书法体字,如 '起' / '承' / '转' / '尾'
+  label: string  // 小数字标签,如 '01 / Recent'
+}
+
+interface Props {
+  eyebrow: Eyebrow
+  title: string         // section 大标题
+  titleAccent?: string  // 嵌入 <em> 拉丁斜体片段(SRC `蘸 · Pick your interests`)
+  sub?: string          // 子说明段
+}
+
+const { eyebrow, title, titleAccent, sub } = Astro.props
+---
+
+<header class="section-head">
+  <span class="eyebrow">
+    <span class="cal">{eyebrow.cal}</span>
+    {eyebrow.label}
+  </span>
+  <h2>
+    {title}
+    {titleAccent && <em>{titleAccent}</em>}
+  </h2>
+  {sub && <p>{sub}</p>}
+</header>
