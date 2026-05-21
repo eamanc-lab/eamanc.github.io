@@ -1,7 +1,9 @@
 ---
+import Hero from '~/components/Hero.astro'
+import PostCard from '~/components/PostCard.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import type { Post } from '~/types'
-import { formatDate, getPosts, withBase } from '~/utils'
+import { getPosts } from '~/utils'
 
 export async function getStaticPaths() {
   const posts = await getPosts()
@@ -21,31 +23,23 @@ export async function getStaticPaths() {
   }))
 }
 
-const { posts, tag } = Astro.props
-
-function getListItems(posts: Post[]) {
-  return posts.map((post) => ({
-    title: post.data.title,
-    href: withBase(`/posts/${post.id}/`),
-    date: formatDate(post.data.pubDate),
-  }))
-}
+const { posts, tag } = Astro.props as { posts: Post[], tag: string }
 ---
 
 <LayoutDefault>
-  <section class="archive-index">
-    <h2 class="archive-index__title">
-      <span class="archive-index__prefix" aria-hidden="true">#</span>{tag}
-    </h2>
-    <ul class="post-list">
-      {
-        getListItems(posts).map(({ title, href, date }) => (
-          <li class="post-list__item">
-            <a class="post-list__title" href={href}>{title}</a>
-            <time class="post-list__date">{date}</time>
-          </li>
-        ))
-      }
-    </ul>
+  <Hero
+    compact
+    eyebrow={{ seal: '签', label: `Tag · #${tag}` }}
+    title={`#${tag}`}
+    sub={`${posts.length} 篇`}
+    bgChar="文"
+  />
+
+  <section class="page-section">
+    <div class="grid-3 post-grid">
+      {posts.map((post) => (
+        <PostCard post={post} />
+      ))}
+    </div>
   </section>
 </LayoutDefault>

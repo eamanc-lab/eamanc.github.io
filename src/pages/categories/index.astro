@@ -1,5 +1,7 @@
 ---
 import { themeConfig } from '~/.config'
+import Hero from '~/components/Hero.astro'
+import SectionHead from '~/components/SectionHead.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import { getCategories, getPathFromCategory, getPosts, withBase } from '~/utils/index'
 
@@ -7,9 +9,12 @@ const { translate: t } = Astro.locals
 const categoryMap = await getCategories()
 const posts = await getPosts()
 
-const list = getListFromMap(categoryMap)
+const list = Array.from(categoryMap).map(([key, value]) => ({
+  title: key,
+  href: withBase(`/categories/${getPathFromCategory(key, themeConfig.site.categoryMap)}`),
+  size: t('categories_count', value.length),
+}))
 
-// 收集所有标签及其文章数
 const tagCountMap = new Map<string, number>()
 for (const post of posts) {
   for (const tag of post.data.tags ?? []) {
@@ -17,34 +22,32 @@ for (const post of posts) {
   }
 }
 const tagList = Array.from(tagCountMap).sort((a, b) => b[1] - a[1])
-
-function getListFromMap(map: typeof categoryMap) {
-  return Array.from(map).map(([key, value]) => ({
-    title: key,
-    href: withBase(`/categories/${getPathFromCategory(key, themeConfig.site.categoryMap)}`),
-    size: t('categories_count', value.length),
-  }))
-}
 ---
 
 <LayoutDefault>
-  <section class="categories-index">
-    <h2 class="categories-index__title">{t('Categories')}</h2>
+  <Hero
+    compact
+    eyebrow={{ seal: '承', label: 'Categories · 二〇二六' }}
+    title="分类"
+    sub="按主题聚合的写作脉络。"
+    bgChar="承"
+  />
+
+  <section class="page-section">
+    <SectionHead eyebrow={{ cal: '类', label: '01 / All' }} title={t('Categories')} />
     <ul class="post-list">
-      {
-        list.map(({ title, href, size }) => (
-          <li class="post-list__item">
-            <a class="post-list__title" href={href}>{title}</a>
-            <span class="post-list__meta">{size}</span>
-          </li>
-        ))
-      }
+      {list.map(({ title, href, size }) => (
+        <li class="post-list__item">
+          <a class="post-list__title" href={href}>{title}</a>
+          <span class="post-list__meta">{size}</span>
+        </li>
+      ))}
     </ul>
   </section>
 
   {tagList.length > 0 && (
-    <section class="categories-index categories-index--tags">
-      <h2 class="categories-index__title">{t('Tags')}</h2>
+    <section class="page-section">
+      <SectionHead eyebrow={{ cal: '签', label: '02 / Tags' }} title={t('Tags')} />
       <div class="tag-cloud">
         {tagList.map(([tag, count]) => (
           <a class="tag-cloud__item not-underline-hover" href={withBase(`/tags/${tag}`)}>

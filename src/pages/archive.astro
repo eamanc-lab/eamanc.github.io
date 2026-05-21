@@ -1,4 +1,6 @@
 ---
+import Hero from '~/components/Hero.astro'
+import SectionHead from '~/components/SectionHead.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import type { Post } from '~/types'
 import { formatDate, getPosts, withBase } from '~/utils'
@@ -17,38 +19,41 @@ function getYearMap(posts: Post[]) {
   const result = new Map<number, ListItem[]>()
   for (const post of posts) {
     const year = (post.data.pubDate ?? new Date()).getFullYear()
-    const posts = result.get(year) ?? []
-    posts.push(getListItem(post))
-    result.set(year, posts)
+    const ps = result.get(year) ?? []
+    ps.push({
+      title: post.data.title,
+      href: withBase(`/posts/${post.id}/`),
+      date: formatDate(post.data.pubDate, 'MM-DD'),
+    })
+    result.set(year, ps)
   }
   return Array.from(result.entries())
-}
-
-function getListItem(post: Post): ListItem {
-  return {
-    title: post.data.title,
-    href: withBase(`/posts/${post.id}/`),
-    date: formatDate(post.data.pubDate, 'MM-DD'),
-  }
 }
 ---
 
 <LayoutDefault>
-  <div class="archive">
-    {
-      yearMap.map(([year, posts]) => (
-        <section class="archive-index">
-          <h2 class="archive-index__title archive-index__title--year">{year}</h2>
-          <ul class="post-list">
-            {posts.map(({ title, href, date }) => (
-              <li class="post-list__item">
-                <a class="post-list__title" href={href}>{title}</a>
-                <time class="post-list__date">{date}</time>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))
-    }
-  </div>
+  <Hero
+    compact
+    eyebrow={{ seal: '尾', label: 'Archive · 二〇二六' }}
+    title="归档"
+    sub="按年时间索引,从近到远。"
+    bgChar="尾"
+  />
+
+  {yearMap.map(([year, items]) => (
+    <section class="page-section">
+      <SectionHead
+        eyebrow={{ cal: '岁', label: `${year}` }}
+        title={`${year}`}
+      />
+      <ul class="post-list">
+        {items.map(({ title, href, date }) => (
+          <li class="post-list__item">
+            <a class="post-list__title" href={href}>{title}</a>
+            <time class="post-list__date">{date}</time>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
 </LayoutDefault>

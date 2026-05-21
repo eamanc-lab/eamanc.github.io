@@ -1,8 +1,10 @@
 ---
 import { themeConfig } from '~/.config'
+import Hero from '~/components/Hero.astro'
+import PostCard from '~/components/PostCard.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import type { Post } from '~/types'
-import { formatDate, getCategories, getPathFromCategory, withBase } from '~/utils'
+import { getCategories, getPathFromCategory } from '~/utils'
 
 export async function getStaticPaths() {
   const categoryMap = await getCategories()
@@ -15,32 +17,23 @@ export async function getStaticPaths() {
   })
 }
 
-const { posts, name } = Astro.props
-
-function getListItems(posts: Post[]) {
-  const result = posts.map((post) => ({
-    title: post.data.title,
-    href: withBase(`/posts/${post.id}/`),
-    date: formatDate(post.data.pubDate),
-  }))
-  return result
-}
+const { posts, name } = Astro.props as { posts: Post[], name: string }
 ---
 
 <LayoutDefault>
-  <section class="archive-index">
-    <h2 class="archive-index__title">
-      <span class="archive-index__prefix" aria-hidden="true">#</span>{name}
-    </h2>
-    <ul class="post-list">
-      {
-        getListItems(posts).map(({ title, href, date }) => (
-          <li class="post-list__item">
-            <a class="post-list__title" href={href}>{title}</a>
-            <time class="post-list__date">{date}</time>
-          </li>
-        ))
-      }
-    </ul>
+  <Hero
+    compact
+    eyebrow={{ seal: '承', label: `Category · ${name}` }}
+    title={name}
+    sub={`${posts.length} 篇`}
+    bgChar="承"
+  />
+
+  <section class="page-section">
+    <div class="grid-3 post-grid">
+      {posts.map((post) => (
+        <PostCard post={post} />
+      ))}
+    </div>
   </section>
 </LayoutDefault>

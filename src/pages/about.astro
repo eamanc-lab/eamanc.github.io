@@ -1,27 +1,24 @@
 ---
 import { getEntry, render } from 'astro:content'
+import Hero from '~/components/Hero.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import { formatDate } from '~/utils'
 
-const { translate: t } = Astro.locals
-const aboutPost = await getEntry('spec', 'about')
-if (!aboutPost) {
-  throw new Error('No about post found')
+const entry = await getEntry('spec', 'about')
+if (!entry) {
+  throw new Error('No about entry found')
 }
-const { Content } = await render(aboutPost)
+const { Content } = await render(entry)
 ---
 
 <LayoutDefault>
-  <header class="about__header">
-    <h1 class="about__title">
-      <a class="not-prose">{aboutPost.data.title}</a>
-    </h1>
-    <div class="about__meta">
-      <span class="about__meta-label">{t('posted_at')}</span>
-      <time class="about__meta-date">{formatDate(aboutPost.data.pubDate)}</time>
-    </div>
-  </header>
-  <article class="prose">
+  <Hero
+    eyebrow={{ seal: '我', label: 'About · Eaman' }}
+    title="关于"
+    sub="一个 AI 应用探索的工程师 — Eaman · 业余跑者。"
+    bgChar="人"
+  />
+
+  <article class="page-section page-section--about prose">
     <Content />
   </article>
 </LayoutDefault>
