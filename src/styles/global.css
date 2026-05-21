@@ -360,7 +360,15 @@ article.prose :is(h1, h2, h3, h4) {
   font-weight: 500;
   letter-spacing: -0.01em;
   text-wrap: balance;
-  filter: url(#ink-bleed);                          /* D3 全特效:标题边缘墨韵毛边(用户明确决策,全站 1:1) */
+  /* 后验调整(2026-05-21):article.prose 段所有标题(h1/h2/h3/h4)与
+     .post-meta__title 同性质 — 中文衬线大字 1.32~2.6rem,横竖笔画结构正,
+     挂 `url(#ink-bleed)`(feDisplacementMap scale=14)位移过强,笔画被撕扯
+     出明显歪斜感(用户验收反馈"标题示例 / 代码块示例"歪)。
+     改用 `url(#ink-bleed-btn)`(scale=5,弱晕档位)与 .post-meta__title 一致。
+     D3 全特效语义不退:容器盒边缘(.ink-card / pre / hr / li::before)仍用
+     `#ink-bleed`(scale=14 对 box-element 与 1px 线/小点是合宜的不规则毛边,
+     不会撕扯字形)。 */
+  filter: url(#ink-bleed-btn);
 }
 article.prose h1 {                                  /* ≈ SRC Display 44/500 */
   font-size: 2.6rem;
