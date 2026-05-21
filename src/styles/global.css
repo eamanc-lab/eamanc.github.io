@@ -2021,14 +2021,18 @@ html.dark article.prose pre.astro-code span {
   top: 0;
   z-index: 80;
   margin: 0 0 var(--sp-6);
-  padding: 16px var(--sp-6);
-  display: flex;
-  align-items: center;
-  gap: var(--sp-4);
   background: color-mix(in oklab, var(--paper) 85%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--ink-hairline);
+}
+.topnav__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px var(--sp-6);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
 }
 .topnav .brand {
   display: flex; align-items: center; gap: 12px;
@@ -2109,9 +2113,9 @@ html.dark article.prose pre.astro-code span {
   border-radius: 3px;
 }
 
-/* mobile 640: topnav padding 与 .page-stage 对齐 */
+/* mobile 640: topnav__inner padding 与 .page-stage 对齐 */
 @media (max-width: 640px) {
-  .topnav { padding: 12px var(--sp-4); }
+  .topnav__inner { padding: 12px var(--sp-4); }
 }
 
 /* mobile <375: 隐藏 search-trigger */
