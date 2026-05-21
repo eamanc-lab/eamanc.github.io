@@ -2021,7 +2021,7 @@ html.dark article.prose pre.astro-code span {
   top: 0;
   z-index: 80;
   margin: 0 0 var(--sp-6);
-  padding: 16px 0;
+  padding: 16px var(--sp-6);
   display: flex;
   align-items: center;
   gap: var(--sp-4);
@@ -2107,6 +2107,11 @@ html.dark article.prose pre.astro-code span {
   background: color-mix(in oklab, var(--paper-shade) 50%, transparent);
   border: 0.5px solid var(--ink-hairline);
   border-radius: 3px;
+}
+
+/* mobile 640: topnav padding 与 .page-stage 对齐 */
+@media (max-width: 640px) {
+  .topnav { padding: 12px var(--sp-4); }
 }
 
 /* mobile <375: 隐藏 search-trigger */
