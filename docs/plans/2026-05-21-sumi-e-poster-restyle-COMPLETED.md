@@ -395,3 +395,128 @@
 ## 执行方式
 
 按 superpowers:subagent-driven-development:每 Task 走 implementer → spec review → quality review,review 不通过则回 implementer 修,过了才推进下一 Task。
+
+---
+
+## 完工报告(2026-05-21)
+
+### 整体结果
+
+**11 个 Task + 2 个续修 = 11 commit,全部 deploy success。** 博客从基座右侧栏布局 → SRC sumi-e showcase 海报美学。
+
+### Commit 链(`4bf643c` BASE → HEAD)
+
+```
+be33b2e fix(topnav): initAriaCurrent 选择器迁移到 .topnav nav.links a + 子路径前缀匹配 (Task v3-H)
+cb4d4e3 feat(post-detail): 文章详情 hero 化,标题升 hero 字阶 + 首字 bg-char (Task v3-G)
+69040e4 feat(list-pages): 5 个列表/关于页统一 Hero(compact) + Section (Task v3-F)
+e4091e2 fix(topnav): inner wrapper 完整水平对齐(S-2 续修)
+0a2ed82 feat(home): 首页重做,Hero + 起·近作 grid + 承·分类 + 转·关于 (Task v3-E)
+dc96dd7 feat(post-card): PostCard 组件 + .ink-card 子选择器 + .grid-3/-2 容器 (Task v3-D)
+8851359 feat(section-head): SectionHead 组件 + .section-head CSS 1:1 (Task v3-C)
+b24a847 feat(hero): Hero 组件 + .hero/.bg-char CSS 1:1 镜像 (Task v3-B)
+35a1095 fix(topnav): 与 .page-stage 水平对齐 + 清理冗余 brand class (S-2 + Q-2)
+bbf766e refactor(layout): v3-A LayoutDefault 骨架 + TopNav 组件(Task 1+2 合并)
+f703ecb docs(plan): v3 sumi-e 海报式布局重做计划
+```
+
+### Task → Commit 映射
+
+| Plan Task | Commit | 备注 |
+|---|---|---|
+| Task 1 + 2 (LayoutDefault + TopNav) | `bbf766e` | 紧耦合合并 |
+| (S-2 修) | `35a1095` | TopNav 对齐 v1 |
+| Task 3 (Hero) | `b24a847` | keyframe 用 `hero-` 前缀避冲突 |
+| Task 4 (SectionHead) | `8851359` | byte-equal SRC 350-405 |
+| Task 5 (PostCard + grid-3) | `dc96dd7` | `:has(:only-child)` 单卡居中降级 |
+| Task 6 (首页 Hero+3section) | `0a2ed82` | 起·近作 / 承·分类 / 转·关于 |
+| (S-2 续修) | `e4091e2` | 双层结构 `.topnav` + `.topnav__inner` |
+| Task 7 (5 列表/关于页) | `69040e4` | bgChar:尾/承/承/文/人 |
+| Task 8 (文章详情 hero) | `cb4d4e3` | PostMeta 从 prose 内移出 + `.post-detail__meta` |
+| Task 9 (TopNav swup) | `be33b2e` | sumi.ts initAriaCurrent 选择器迁移 + 前缀匹配 |
+| Task 10 (视觉验证) | (本次实测) | 7 页 desktop light 全过 |
+| Task 11 (文档收尾) | 本 commit | CLAUDE.md 更新 + 本完工报告 |
+
+### 文件变更统计
+
+```
+16 files changed, 1481 insertions(+), 190 deletions(-)
+```
+
+**新建 4 个组件**:
+- `src/components/TopNav.astro` (45 行) — SRC line 948-1042 1:1 + SSR aria-current
+- `src/components/Hero.astro` (91 行) — SRC line 1043-1166 + props 化(compact/marquee/cta/bgChar)
+- `src/components/SectionHead.astro` (27 行) — SRC line 350-405 byte-equal
+- `src/components/PostCard.astro` (54 行) — h3 + meta row + line-clamp-3 描述
+
+**改 7 个页面 + 2 个 layout**:
+- `src/layouts/LayoutDefault.astro` — 去基座右栏 + 加 TopNav + page-stage + footer-v3
+- `src/layouts/LayoutPost.astro` — 删 PostMeta 引用,仅留 reading-progress + article.prose + slot
+- `src/pages/[...page].astro` — Hero + 3 section
+- `src/pages/posts/[...id].astro` — Hero + meta 行 + LayoutPost
+- `src/pages/archive.astro` / `categories/[index|category]` / `tags/[..tag]` / `about` — Hero(compact) + SectionHead + 列表/grid
+
+**global.css 新增 v3-A ~ v3-G 7 段 + 1 个 v3-H sumi.ts 段**:
+- v3-A: `.topnav` + `.page-stage` + `.site-footer-v3`(line 2012+)
+- v3-B: `.hero` + `.bg-char`(line 2161+)
+- v3-C: `.section-head`(line 2317+)
+- v3-D: `.ink-card` 子选择器 + `.grid-3/-2` 容器 + PostCard 扩展(line 2383+)
+- v3-E: `.page-section` + `.chip-row` + `.page-section__about-*`(line 2475+)
+- v3-G: `.post-detail__meta`(line 2553+)
+- (v3-F 是 Task 7 改 page 文件,无 CSS 增量)
+
+**总 CSS 行增**:582 行 sumi 海报系统(于 article.prose 段 1-1937 之外,完全独立)
+
+### D9-D11 决策落地验证
+
+| ID | 决策 | 实测 |
+|----|------|------|
+| **D9** | 不抄 SRC widget showcase 内容,只抄 hero/topnav/section/card 骨架 + 节奏 | ✅ 无 sliders/lockscreen/etc;sumi-e showcase 12 section 中只移植 hero + nav + section + card 4 类 |
+| **D10** | article.prose byte-equality 锚不动 | ✅ md5 `2e5f5684090986670e2f41c7c5aa0687` 跨 9 commit 全程不变 |
+| **D11** | v2 三件套脱钩保留 | ✅ SiteTitle/SiteNavigation/SiteFooter 0 引用 0 删除 |
+
+### 验证矩阵(Task 10)
+
+7 页 desktop 1440 light 实测全过(`.testshots/v3-*` 12 张截图):
+
+| # | 页面 | viewport | console | 结构验证 |
+|---|---|---|---|---|
+| 01 | 首页 viewport | 1440 light | 0 error | Hero + bg-char "墨" + 3 section + footer 全到位 |
+| 02 | 首页 full page | 1440 light | 0 error | 起·近作 + 承·分类 + 转·关于 完整呈现 |
+| 03 | 暗模首页 | 1440 dark | 0 error | 暖墨夜 + bg-char opacity 0.08 |
+| 04 | 移动首页 | 375 light | 0 error | TopNav 横排紧凑 + Hero compact 折叠 + 3 section 单列 |
+| 05 | 文章详情 viewport | 1440 light | 0 error | Hero "你好，世界" + bg-char "你" + meta 行 + 首字下沉 |
+| 06 | 文章详情 full | 1440 light | 0 error | 完整 prose + Shiki 代码块 + 复制按钮 |
+| 07 | 归档 | 1440 light | 0 error | Hero compact "归档"·尾 + 岁 SectionHead + 行式列表 |
+| 08 | 分类索引 | 1440 light | 0 error | Hero compact "分类"·承 + 类 + 签(标签云) |
+| 09 | 单分类 | 1440 light | 0 error | Hero compact "杂谈"·承 + PostCard grid |
+| 10 | 标签页 | 1440 light | 0 error | Hero compact "#博客"·文 + PostCard grid |
+| 11 | 关于 | 1440 light | 0 error | Full Hero "关于"·人 + article.prose |
+| 12 | swup 切页 | nav 点击 | 0 error | URL 更新 + aria-current 由 sumi.ts initAriaCurrent v3 重计算 |
+
+### 关键技术决策
+
+| 主题 | 决策 | 理由 |
+|------|------|------|
+| keyframe 命名 | `hero-char-reveal/hero-char-underline` 加前缀 | global.css:1864 既有 `@keyframes char-reveal` (Task 11 v2 article.prose 首字下沉),曲线不同会冲突 |
+| `.char` → `.ch` 类映射 | Hero h1 SSR 用 `.ch` 与 sumi.ts initCharReveal 钩子兼容 | 不引入第二套钩子,保持 v2 sumi.ts 不动 |
+| `.ink-card` 子选择器 | 补充 SRC h3/p/.head/.foot 子选择器,既有 .ink-card 基础规则不动 | byte-equal SRC line 1213-1248 + 不破 v2 .wash 钩子 |
+| TopNav 双层结构 | `.topnav` sticky + bg(全宽);`.topnav__inner` max-width 1200 + padding | desktop > 1200 时与 page-stage 内容左对齐,backdrop 全宽 |
+| `:has(:only-child)` | grid-3 单卡降级到 320-560px 居中 | 文章稀少时(1 篇)避免 grid 拉满空旷 |
+
+### 已知约束 / 后续 followup
+
+- `sumi-mode` 切换器(Q-1):SRC `:root[data-mode="night"]` 在博客映射为 `html.dark`(D4 既有桥接),本次重做新增的 `.hero .bg-char` 暗模规则采用**并行双写**(`:root[data-mode="night"]` + `html.dark`),为未来双 source 部署留兼容缓冲。
+- `.mini-seal` 全局工具类升级(Q-3):现 3 处用例(brush-divider / site-footer-v3 / Hero seal-mini)已超 ≥3 阈值,但本次未提全局工具类。下次清仓 commit 可统一。
+- swup containers 配置:目前 swup 默认替换 `<main>` 内容,header `.topnav` 不重渲染。Task 9 v3-H 通过 sumi.ts initAriaCurrent 运行时重计算 aria-current 解决高亮 stale。如未来需要 swup 真正替换 topnav(eg. dynamic search 状态),可改 astro.config.ts swup `containers: ['#swup-main', 'header.topnav']`。
+
+### 视觉对比 SRC vs v3 博客
+
+SRC sumi-e showcase 是 component library 展示页,博客 v3 取其骨架与节奏(hero / topnav / section / card)套用到 blog 内容上 — 不是把博客做成 showcase,而是用 showcase 的"海报美学"包装博客本来的内容(文章列表 / 分类 / 归档 / 关于)。
+
+实测对照:
+- **SRC**: "让思想在纸上洇开。" 巨字 + "墨" bg-char + Browse components CTA
+- **博客 v3**: "雾散之前" 巨字 + "墨" bg-char + 开始阅读 / 关于我 CTA + AI 解析 / 中文写作 marquee
+- **同一美学骨架,不同内容载体**
+
+---

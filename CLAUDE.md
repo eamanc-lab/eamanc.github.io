@@ -20,21 +20,34 @@
 
 **v1（2026-04 ~ 05 上旬）**：调研 30+ 主题后选 [Astro Theme Typography](https://github.com/moeyua/astro-theme-typography) 作为基座（中文排版友好 + 衬线体格调），自定义为「亚麻纹理 + 琥珀 accent + 首字下沉」的克制衬线版。
 
-**v2（2026-05，sumi-e 迁移）**：在 v1 基础上整套替换为 sumi-e 水墨语言（参考 lab-room.dev `sumi-e` 系列），13 个 Task（+ Task 1.5 typecheck 技术债修复）完成全套 1:1 迁移：
+**v2（2026-05，sumi-e 视觉皮迁移）**：在 v1 基础上整套替换为 sumi-e 水墨**视觉语言**（参考 lab-room.dev `sumi-e` 系列），13 个 Task（+ Task 1.5 typecheck 技术债修复）完成全套 1:1 视觉迁移：
 - 设计灵感从「克制衬线西方排版」迁移到「东方水墨 × 宣纸感」
 - 配色从「米白 + 琥珀」迁移到「宣纸 + 单色墨 + 朱印 signature」
 - 视觉特效从「静态克制」迁移到「SVG 滤镜墨晕 + 鼠标墨迹 + 水波环 + 逐字入场」全特效（D3 决策）
+- 但**布局骨架仍是 Astro Theme Typography 的右侧栏**(未替换),这是 v3 要解决的缺口
 
 迁移完成报告见 `docs/plans/2026-05-19-sumi-e-blog-restyle-COMPLETED.md`。
 
-### 设计语言（v2 sumi-e 后）
+**v3（2026-05-21，sumi-e 海报式布局重做）**：用户反馈"原模版震撼,应用到工程平平无奇,布局应该有更符合主题的版本",指出 v2 只做了视觉皮替换,没有应用 SRC sumi-e showcase 的**海报式构图美学**。11 个 Task + 2 个续修(S-2 完整修 + Task 9 sumi.ts 选择器迁移) = 11 commit 完成布局骨架整套重做:
+- 顶部 sticky **TopNav**(brand 朱印 logo + 横向 nav + search trigger placeholder)替换 v2 右侧栏
+- 首屏 **Hero**(96px 大字 + 巨型背景"墨"字 + eyebrow 朱印 + sub + CTA + marquee + char-reveal 入场)— SRC `.hero` line 1043-1166 1:1
+- **SectionHead**(eyebrow cal 朱印 + 序号 + h2 + sub)统一各 section 节奏
+- **PostCard widget + .grid-3** 容器替换 v2 .ink-card 列式
+- 7 个页面(首页/归档/分类索引/单分类/标签/关于/文章详情)全套按"Hero + SectionHead + 列表/grid"模式重排
+- D5 article.prose 段 byte-equality 锚跨 11 commit md5 `2e5f5684090986670e2f41c7c5aa0687` 全程不变(D10 守护)
+- 旧 v2 三件套(SiteTitle / SiteNavigation / SiteFooter)文件保留但 0 引用(D11 脱钩)
 
-**核心原则：单色水墨即克制，宣纸朱印即签名。**
+完成报告见 `docs/plans/2026-05-21-sumi-e-poster-restyle-COMPLETED.md`。
 
+### 设计语言（v3 sumi-e 海报式 + v2 视觉系统）
+
+**核心原则：海报式骨架,水墨皮肤,朱印签名。**
+
+- **海报式骨架**(v3 新增)：顶部 sticky TopNav + 首屏 Hero(96px 大字 + 巨型背景字)+ SectionHead 节奏分段 + widget grid 列文章 — 而非传统侧栏 blog 布局
 - **东方克制**：宣纸暖色 + 单色墨（不引入彩色），通过浓淡而非色相传递层次
 - **artistic intent**：每个 SVG 滤镜（`#ink-bleed`/`#ink-bleed-btn`/`#ink-goo`/`#inkGrad`）都有「墨与纸的物理关系」表达目的（晕染/融墨/笔触/渐变）
-- **signature accent**：朱印（朱砂红 var(--seal)）作为唯一非墨色 accent，用于阅读进度条、首字下沉、`.mini-seal` 落款、`.post-category` chip outline——「画押」式签名感
-- **全特效保真**（D3）：标题/引用/hr/链接/卡片边缘/列表点缀全套挂 url(#ink-bleed)，不为长文性能擅自降级
+- **signature accent**：朱印（朱砂红 var(--seal)）作为唯一非墨色 accent，用于 Hero eyebrow / 阅读进度条 / 首字下沉 / `.mini-seal` 落款 / `.post-category` chip outline / chip seal outline / Hero `<em>` 拉丁斜体——「画押」式签名感
+- **全特效保真**（D3 修订）：容器盒边缘(.ink-card / pre / hr / li::before)用 `#ink-bleed` (scale=14);文字段标题(article.prose h1-h4 / .post-meta__title)降级 `#ink-bleed-btn` (scale=5,Bug 修复后,避免中文字形扭曲)
 
 ### 风格参考坐标系
 
@@ -47,22 +60,22 @@
 
 ### 当前状态
 
-- ✅ v2 sumi-e 设计语言全套落地（13 Task 完结）
-- ✅ 13 Task commit 链清晰（`3ae4fab` BASE → Task 13 终验 commit）
+- ✅ v2 sumi-e 视觉系统全套落地（13 Task,token / SVG defs / 字体 / 滤镜 / 朱印 / 鼠标墨迹 / swup）
+- ✅ v3 sumi-e 海报式布局重做（11 Task,TopNav + Hero + SectionHead + PostCard + 7 页重排）
+- ✅ v3 commit 链清晰（`4bf643c` BASE → `be33b2e` HEAD,共 11 commit,全 deploy success）
 - ✅ 构建门：`pnpm typecheck` / `pnpm build` 双零错（8 page 全产出）
-- ✅ 视觉门：7 页 × 亮/暗/移动 × Playwright headless 全过，交互/swup 全过
-- ✅ 健壮门：暗色全站 / 移动 / 断网字体 fallback / 长文滚动 / 打印
-- ✅ GitHub Actions 自动部署配置
-- ⏳ 替换示例文章为真实内容
-- ⏳ 首次推送部署
+- ✅ 视觉门：7 页 × 亮/desktop × Chrome devtools headless 全过(`.testshots/v3-*` 12 张),交互/swup/aria-current 全过
+- ✅ D5 article.prose byte-equality 锚跨 11 commit md5 `2e5f5684090986670e2f41c7c5aa0687` 全程不变(D10 守护)
+- ✅ GitHub Actions 自动部署上线 `https://eamanc-lab.github.io/eamanc.github.io/`
+- ⏳ 替换示例文章 hello-world.md 为真实内容
 
 ---
 
-## 设计规范（sumi-e v2）
+## 设计规范（sumi-e v3 海报式 + v2 视觉系统）
 
-> 历史 v1（米白 + 琥珀 + 亚麻）已整套被 v2 sumi-e 替换，本节为当前生效规范。
+> 历史 v1（米白 + 琥珀 + 亚麻）已整套被 v2 sumi-e 视觉替换;v2 的基座右侧栏布局已被 v3 海报式骨架(TopNav + Hero + Section)替换。本节为当前生效规范。
 
-### 设计决策记录（D1-D8）
+### 设计决策记录（D1-D11）
 
 | ID | 决策 | 落点 |
 |----|------|------|
@@ -74,6 +87,9 @@
 | **D6** | 站点框架走 BEM（`.site-title__name` / `.site-nav__link` / `.site-footer__seal` 等），与基座 layout 解耦 | `SiteTitle.astro` / `SiteNavigation.astro` / `SiteFooter.astro` |
 | **D7** | 朱印 signature accent：阅读进度条 / 首字下沉 / `.mini-seal` / `.post-category` outline 全用 `var(--seal)` 朱砂色而非 ink | `global.css` 多段 + `LayoutPost.astro` reading-progress |
 | **D8** | 代码块走 Shiki dual theme（github-light + github-dark-dimmed），`defaultColor:false` 输出 `--shiki-light/dark` CSS vars，由 sumi 容器壳（`var(--paper-shade)` 底 + `var(--ink-hairline)` 边 + `url(#ink-bleed)`）接管视觉感 | `astro.config.ts` shikiConfig + `global.css` Task 12 段 |
+| **D9** | **不抄 SRC 的 widget showcase 内容**(lockscreen / sliders / inputs 等是组件库展示,博客不需要);**只抄 SRC 的布局骨架 + hero 美学 + section 节奏**(`.topnav` / `.hero` / `.bg-char` / `.section-head` / `.ink-card` / `.grid-3`)。SRC 文学标签"起承转字文合"映射为博客自有语义(起·近作 / 承·分类 / 转·关于 / 尾·归档) | v3 plan 全 Task |
+| **D10** | **article.prose 段 byte-equality 锚不动**(md5 `2e5f5684090986670e2f41c7c5aa0687` `sed -n '1,1937p'`);v3 重做只在 prose **外**(`.hero` / `.topnav` / `.section-head` / widget card)做骨架替换,prose 内部不碰一行 | v3 全 Task hard 约束 |
+| **D11** | **基座 v2 三件套(SiteTitle / SiteNavigation / SiteFooter)文件保留但脱钩** — v3 LayoutDefault 不再引用,由 TopNav + footer-v3 替代;文件留 repo 不删,因 v2 设计规范文档仍引用做对比基线 | LayoutDefault.astro / 旧三件套文件保留 |
 
 ### Token 体系（sumi v2）
 
@@ -229,37 +245,46 @@ pnpm theme:create # 创建新文章（交互式）
 
 ## 关键文件
 
-按 Task 段索引，便于查阅各次迁移落点。
+按 Task 段索引(v2 数字 / v3 字母),便于查阅各次迁移落点。
 
 | 文件 | Task | 用途 |
 |------|------|------|
-| `src/.config/user.ts` | 1/2 | 站点 site + appearance.colorsLight/Dark + fonts（sumi token 系统级注入） |
-| `src/.config/default.ts` | — | 主题默认配置（不要直接改） |
-| `uno.config.js` | 2 | UnoCSS theme 桥接（sumi token 映射） |
-| `astro.config.ts` | 12 | Shiki dual theme（`github-light` / `github-dark-dimmed`）+ `defaultColor:false` |
-| `src/styles/global.css` | 3-12 | 全部自定义样式（按 Task 段块状组织，每段顶部有 `═══` 节标识 + Task 注释） |
-| `src/layouts/LayoutDefault.astro` | 4 | `.paper-stage` 三层纸 + SVG filter defs + `ThemeScript` |
-| `src/layouts/LayoutPost.astro` | 6 | 文章详情页 + 阅读进度条朱砂笔触 + 内联 sumi.ts |
-| `src/components/SiteTitle.astro` | 7 | 书法体大标题 + 副标 + `.mini-seal` 朱印 |
-| `src/components/SiteNavigation.astro` | 7 | 导航笔触下划线（aria-current 由 sumi.ts 切换） |
-| `src/components/PostMeta.astro` | 8 | 文章元信息（date + category chip + tags） |
-| `src/components/PostCategory.astro` | 8 | 单独的分类 chip（seal-outline + ripple target） |
-| `src/pages/[...page].astro` | 9 | 首页 `.ink-card` 列表 |
-| `src/pages/categories/index.astro` | 10 | 分类总览 + 标签云 |
-| `src/pages/categories/[...category].astro` | 10 | 单分类 |
-| `src/pages/tags/[...tag].astro` | 10 | 单标签 |
-| `src/pages/archive.astro` | 10 | 按年归档 |
-| `src/pages/about.astro` | 10 | 关于页（独立 header） |
-| `src/pages/posts/[...id].astro` | 11/12 | 文章详情 + 内联 sumi.ts（pointerTracking/ripple/brushDivider/charReveal/ariaCurrent）+ `.clipboard-copy` 朱印 |
+| `src/.config/user.ts` | 1/2 | 站点 site + appearance.colorsLight/Dark + fonts(sumi token 系统级注入)+ navLinks(TopNav 消费) |
+| `src/.config/default.ts` | — | 主题默认配置(不要直接改) |
+| `uno.config.js` | 2 | UnoCSS theme 桥接(sumi token 映射) |
+| `astro.config.ts` | 12 | Shiki dual theme(`github-light` / `github-dark-dimmed`)+ `defaultColor:false` |
+| `src/styles/global.css` | 3-12 / v3-A~G | 全部自定义样式(按 Task 段块状组织,每段顶部有 `═══` 节标识 + Task 注释) |
+| `src/layouts/LayoutDefault.astro` | 4 / v3-A | v3 重做:去基座右栏 + TopNav + page-stage + footer-v3(SVG defs / ThemeScript / paper-stage 保留) |
+| `src/layouts/LayoutPost.astro` | 6 / v3-G | v3 调整:删 PostMeta 引用,仅留 reading-progress + article.prose + slot |
+| `src/components/TopNav.astro` | **v3-A** | 顶部 sticky nav(brand 朱印 + 横向 nav + search trigger,SSR aria-current 剥 base) |
+| `src/components/Hero.astro` | **v3-B** | 96px 大字 hero + 巨型 bg-char + eyebrow 朱印 + sub + cta + marquee(SRC line 1043-1166 1:1) |
+| `src/components/SectionHead.astro` | **v3-C** | eyebrow cal 朱印 + 序号 + h2 + sub(SRC line 350-405 byte-equal) |
+| `src/components/PostCard.astro` | **v3-D** | h3 + meta row + line-clamp-3 描述 widget card |
+| `src/components/SiteTitle.astro` | 7 | (D11 v2 三件套保留不删,但 v3 已不再被 LayoutDefault 引用) |
+| `src/components/SiteNavigation.astro` | 7 | (D11 同上) |
+| `src/components/SiteFooter.astro` | 7 | (D11 同上) |
+| `src/components/PostMeta.astro` | 8 | (v3 已不在 LayoutPost 内消费;文件保留备其他用例) |
+| `src/components/PostCategory.astro` | 8 | 单独的分类 chip(seal-outline + ripple target,v3 文章详情 meta 行仍用) |
+| `src/scripts/sumi.ts` | 11 / v3-H | sumi 交互 JS:initAriaCurrent(`.topnav nav.links a` v3 选择器 + 子路径前缀匹配)/ pointerTracking / ripple / brushDivider / charReveal |
+| `src/pages/[...page].astro` | 9 / v3-E | 首页 v3 重做:Hero + 起·近作 grid + 承·分类 chip + 转·关于 |
+| `src/pages/categories/index.astro` | 10 / v3-F | 分类总览 v3:Hero compact + 类 + 签(标签云) |
+| `src/pages/categories/[...category].astro` | 10 / v3-F | 单分类 v3:Hero compact + PostCard grid |
+| `src/pages/tags/[...tag].astro` | 10 / v3-F | 单标签 v3:Hero compact "#标签" + grid |
+| `src/pages/archive.astro` | 10 / v3-F | 按年归档 v3:Hero compact + 行式列表 |
+| `src/pages/about.astro` | 10 / v3-F | 关于 v3:Full Hero + article.prose |
+| `src/pages/posts/[...id].astro` | 11/12 / v3-G | 文章详情 v3:Hero(标题升 hero 字阶 + 首字 bg-char)+ post-detail__meta 行 + LayoutPost + clipboard-copy |
 | `src/content/posts/*.md` | — | 博客文章 |
-| `src/content/spec/about.md` | — | 关于页面内容 |
-| `docs/plans/2026-05-19-sumi-e-blog-restyle.md` | 0-12 | 迁移计划（13 Task spec + reviewer 决议） |
-| `docs/plans/2026-05-19-sumi-e-blog-restyle-COMPLETED.md` | 13 | 迁移完成报告（commit 链 + D1-D8 + 不修项理由 + 已知约束） |
+| `src/content/spec/about.md` | — | 关于页内容 |
+| `docs/plans/2026-05-19-sumi-e-blog-restyle.md` | 0-12 | v2 迁移计划 |
+| `docs/plans/2026-05-19-sumi-e-blog-restyle-COMPLETED.md` | 13 | v2 完成报告 |
+| `docs/plans/2026-05-21-sumi-e-poster-restyle-COMPLETED.md` | v3-A~H | **v3 海报式布局重做计划 + 完工报告**(11 commit 链 + D9-D11 + 验证矩阵) |
 | `.github/workflows/deploy.yml` | — | GitHub Actions 自动部署 |
 
-### sumi 注释惯例（维护指引）
+### sumi 注释惯例(维护指引)
 
-- `global.css` 各 Task 段顶部用 `═══════════════════════════` 包裹的标题行，写明 `Task N — 主题`
-- 1:1 镜像段（D5 article.prose）有 `byte-equality / md5 / head -n 1937` 锚注释，**修改前必须先改 SRC 再重新 head -n 1937 镜像**（BSD `head` 必须带 `-n`，否则 `1937` 不被当行数）
-- 双向同步护栏：Task 11 sumi.ts 与 `[...id].astro` 内联是单向镜像（SRC → 本仓库），不双向编辑
-- 局部镜像（Task 7 `.mini-seal`）不污染 Task 3 全局 token，作用域用 `.site-*` BEM 前缀隔离
+- `global.css` 各 Task 段顶部用 `═══════════════════════════` 包裹的标题行,写明 `Task N — 主题`(v2 用数字编号 1-12,v3 用字母 v3-A~H)
+- 1:1 镜像段(D5 article.prose)有 `byte-equality / md5 / head -n 1937` 锚注释,**修改前必须先改 SRC 再重新 head -n 1937 镜像**(BSD `head` 必须带 `-n`,否则 `1937` 不被当行数);**v3 重做硬约束 D10:article.prose 段 md5 跨 11 commit 全程不变 `2e5f5684090986670e2f41c7c5aa0687`**
+- 双向同步护栏:Task 11 sumi.ts 与 `[...id].astro` 内联是单向镜像(SRC → 本仓库),不双向编辑
+- 局部镜像(Task 7 `.mini-seal`/v3-A `.site-footer-v3 .mini-seal`)不污染 Task 3 全局 token,作用域用 BEM 前缀隔离;目前 3 处用例(brush-divider / site-footer-v3 / Hero seal-mini)已超 ≥3 阈值,下次清仓 commit 可升全局工具类
+- v3 段间 keyframe 命名:Hero 用 `hero-char-reveal/hero-char-underline` 前缀(避免与 v2 既有 `@keyframes char-reveal` Task 11 段曲线冲突)
+- v3 三件套(SiteTitle/SiteNavigation/SiteFooter)文件保留但 0 引用(D11),修改时注意它们已脱钩(不影响线上),如要删除请先 grep 确保无任何旧文档引用
